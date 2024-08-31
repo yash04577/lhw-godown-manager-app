@@ -15,7 +15,7 @@ import {
 import DatePicker from "react-native-date-picker";
 import { Dropdown } from "react-native-element-dropdown";
 
-export default function HomeScreen() {
+const inwardSlip = ()=> {
   const [godownData, setGodownData] = useState([
     {
       _id: "65dc15c87d442240671928e6",
@@ -389,3 +389,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 });
+
+
+export default inwardSlip;

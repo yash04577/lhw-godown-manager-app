@@ -1,34 +1,53 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Feather from 'react-native-vector-icons/Feather';
+import { View } from 'react-native';
+
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-      }}>
+        headerShown: true,
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: 'Outward Slip',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+            <MaterialIcons name="arrow-outward" size={24} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="inwardSlip"
         options={{
-          title: 'Explore',
+          title: 'Inward Slip',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+            <View style={{ transform: [{ rotate: '180deg' }] }}>
+            <MaterialIcons name="arrow-outward" size={24} color={color} />
+          </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="estimateSales"
+        options={{
+          title: 'Estimate Sales',
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons name="attach-money" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="estimatePurchase"
+        options={{
+          title: 'Estimate Purchase',
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons name="money-off" size={24} color={color} />
           ),
         }}
       />

@@ -1,4 +1,5 @@
 import Pagination from "@/components/commanComponents/Pagination";
+import EstimateSalesTable from "@/components/estimateSales/EstimateSalesTable";
 import OutwardSlipCard from "@/components/outwardSlip/OutwardSlipCard";
 import OutwardSlipTable from "@/components/outwardSlip/OutwardSlipTable";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -15,7 +16,7 @@ import {
 import DatePicker from "react-native-date-picker";
 import { Dropdown } from "react-native-element-dropdown";
 
-export default function HomeScreen() {
+const estimatePurchase = ()=> {
   const [godownData, setGodownData] = useState([
     {
       _id: "65dc15c87d442240671928e6",
@@ -232,11 +233,12 @@ export default function HomeScreen() {
             />
           </View>
         </ScrollView>
-        <View className="w-[90%]">
+        <View className="w-[90%] flex flex-row">
         <TextInput 
           placeholder="Search Customer..." 
-          className="border w-full mx-auto px-2 py-1 rounded-md bg-white"
+          className="border w-[65%] mx-auto px-2 py-1 rounded-md bg-white"
         />
+        <TouchableOpacity className="bg-[#283093] flex justify-center items-center rounded-md"><Text className="text-white px-4 font-medium">Add Purchase</Text></TouchableOpacity>
       </View>
       </View>
 
@@ -244,7 +246,7 @@ export default function HomeScreen() {
       {/* cards are here */}
       {/* <ScrollView> */}
       <View className="my-4 h-[75%]">
-        <OutwardSlipTable />
+        <EstimateSalesTable />
       </View>
 
       {/* pagination starts here */}
@@ -389,3 +391,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 });
+
+
+export default estimatePurchase;
