@@ -1,5 +1,5 @@
 import axios from "axios";
-import { outawrdSlipApiPath, outwardSlipFiltersApiPath } from "../apiRoutes";
+import { acceptItemApiPath, assistantApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath } from "../apiRoutes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -37,3 +37,21 @@ export const getOutwardSlipFilters = async(query:any) =>{
     }
 }
 
+export const getAssitant = async() =>{
+    try {
+        const {data} = await axios.get(assistantApiPath);
+        return data;
+    } catch (error) {
+        console.log("error in assistant api", error);
+    }
+}
+
+export const acceptItem = async(payload:any) =>{
+    try {
+        const {data} = await axios.patch(acceptItemApiPath, payload);
+        console.log("item accepted api", data);
+        return data;
+    } catch (error) {
+        console.log("error in accept api", error);
+    }
+}

@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from "../api/authApi";
-import { getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
+import { acceptItem, getAssitant, getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
 
 
 interface LoginState {
@@ -13,9 +13,11 @@ interface LoginState {
 const initialState = {
     data:{},
     filters: {},
+    assistant: [],
     loading:false,
     filterLoading:false,
-    status: 'idle'
+    status: 'idle',
+    refreshData:false,
 }
 
 
@@ -65,6 +67,34 @@ export const getOutwardSlipFiltersAsync: any = createAsyncThunk(
     }
 )
 
+
+export const getAssistantAsync: any = createAsyncThunk(
+    "getAssistantAsync",
+    async () => {
+        try {
+            const response: any = await getAssitant();
+            return response;
+        }
+        catch (err) {
+            console.log("error on assistant slice ", err)
+        }
+    }
+)
+
+export const acceptItemAsync: any = createAsyncThunk(
+    "acceptItemAsync",
+    async (payload) => {
+        try {
+            const response: any = await acceptItem(payload);
+            console.log("accept item slice res ", response);
+            return response;
+        }
+        catch (err) {
+            console.log("error on accept item slice ", err)
+        }
+    }
+)
+
 export const OutwardSlice = createSlice({
     name: 'outward',
     initialState,
@@ -84,6 +114,22 @@ export const OutwardSlice = createSlice({
             .addCase(getOutwardSlipFiltersAsync.fulfilled, (state, action) => {
                 state.filterLoading = false;
                 state.filters = action.payload.data;
+            })
+            .addCase(getAssistantAsync.pending, (state) => {
+                state.filterLoading = true;
+            })
+            .addCase(getAssistantAsync.fulfilled, (state, action) => {
+                state.filterLoading = false;
+                state.assistant = action.payload.data;
+                console.log("assssitany ", action.payload.data)
+            })
+            .addCase(acceptItemAsync.pending, (state) => {
+                state.filterLoading = true;
+                state.refreshData = false;
+            })
+            .addCase(acceptItemAsync.fulfilled, (state, action) => {
+                state.filterLoading = false;
+                state.refreshData = true;
             })
     }
 

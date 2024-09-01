@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { Dropdown } from "react-native-element-dropdown";
-import { getOutwardSlipAsync, getOutwardSlipFiltersAsync } from "@/redux/slices/outwardSlice";
+import { getAssistantAsync, getOutwardSlipAsync, getOutwardSlipFiltersAsync } from "@/redux/slices/outwardSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 
@@ -49,6 +49,8 @@ export default function HomeScreen() {
   const [dateModalOpen, setDateModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<String>("");
   const outwardSlips = useSelector((state:any)=>state?.outward?.data)
+  const assistants = useSelector((state:any)=>state?.outward?.assistant)
+  const refreshData = useSelector((state:any)=>state?.outward?.refreshData);
   // const godownData = useSelector((state:any)=>state?.outward?.filters?.Godown)
   const dispatch = useDispatch();
  
@@ -73,8 +75,11 @@ export default function HomeScreen() {
 
   useEffect(()=>{
     dispatch(getOutwardSlipAsync({limit:20, page:1}));
-  },[])
+    dispatch(getAssistantAsync());
+  },[refreshData])
 
+
+ 
   
 
   
@@ -265,7 +270,7 @@ export default function HomeScreen() {
       {/* cards are here */}
       {/* <ScrollView> */}
       <View className="my-4 h-[75%]">
-        <OutwardSlipTable data={outwardSlips} type={"outward"}/>
+        <OutwardSlipTable data={outwardSlips} assistant={assistants} type={"outward"}/>
       </View>
 
       {/* pagination starts here */}
