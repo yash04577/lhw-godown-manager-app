@@ -12,11 +12,12 @@ const index = () => {
     const rootNavigationState = useRootNavigationState();
     const router = useRouter();
     const token = useSelector((state:any)=>state?.user?.user)
+    const [authCookie, setAuthCookie] = useState();
 
     const getCookie = async () => {
       try {
-        const cookie = await AsyncStorage.getItem('authCookie');
-        return cookie;
+        const cookie:any = await AsyncStorage.getItem('authCookie');
+        setAuthCookie(cookie);
       } catch (e) {
         console.error('Failed to get the cookie', e);
       }
@@ -26,6 +27,15 @@ const index = () => {
       const cookie = getCookie();
       console.log("cookie mili ", cookie)
     },[])
+
+    useEffect(()=>{
+      console.log("finally cookie ", authCookie)
+  
+      if(authCookie){
+        router.push("/(tabs)");
+      }
+  
+    },[authCookie])
 
   return (
     <GestureHandlerRootView>

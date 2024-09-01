@@ -19,6 +19,7 @@ const initialState:LoginState = {
 const saveCookie = async (cookie:any) => {
     try {
       await AsyncStorage.setItem('authCookie', cookie);
+      console.log("cookie saved");
     } catch (e) {
       console.error('Failed to save the cookie', e);
     }

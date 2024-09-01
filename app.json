@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "lhw_godown_manager_app",
+    "description": "godown manager app lohawalla",
     "slug": "lhw_godown_manager_app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +20,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.lohawalla.godownmanager"
     },
     "web": {
       "bundler": "metro",
@@ -31,6 +33,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "a0e5ad2e-958d-4435-a252-1792b9094830"
+      }
     }
   }
 }

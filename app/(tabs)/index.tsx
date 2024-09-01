@@ -16,6 +16,8 @@ import {
 import DatePicker from "react-native-date-picker";
 import { Dropdown } from "react-native-element-dropdown";
 import { getOutwardSlipAsync, getOutwardSlipFiltersAsync } from "@/redux/slices/outwardSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
 
 export default function HomeScreen() {
   // const [godownData, setGodownData] = useState([
@@ -49,7 +51,7 @@ export default function HomeScreen() {
   const outwardSlips = useSelector((state:any)=>state?.outward?.data)
   // const godownData = useSelector((state:any)=>state?.outward?.filters?.Godown)
   const dispatch = useDispatch();
-
+ 
 
   const formatDate = (date: Date): string => {
     return date.toISOString().substring(0, 10);
@@ -72,6 +74,10 @@ export default function HomeScreen() {
   useEffect(()=>{
     dispatch(getOutwardSlipAsync({limit:20, page:1}));
   },[])
+
+  
+
+  
 
   // useEffect(()=>{
   //   dispatch(getOutwardSlipFiltersAsync());
