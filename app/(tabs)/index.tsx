@@ -3,6 +3,7 @@ import OutwardSlipCard from "@/components/outwardSlip/OutwardSlipCard";
 import OutwardSlipTable from "@/components/outwardSlip/OutwardSlipTable";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   StyleSheet,
   Text,
@@ -14,36 +15,41 @@ import {
 } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { Dropdown } from "react-native-element-dropdown";
+import { getOutwardSlipAsync, getOutwardSlipFiltersAsync } from "@/redux/slices/outwardSlice";
 
 export default function HomeScreen() {
-  const [godownData, setGodownData] = useState([
-    {
-      _id: "65dc15c87d442240671928e6",
-      godownName: "virtual godown",
-    },
-    {
-      _id: "658fc1b672dd0a9107005aa9",
-      godownName: "Teen paani godown",
-    },
-    {
-      _id: "658a90b26c98a5c5a0de53b1",
-      godownName: "galla mandiii",
-    },
-    {
-      _id: "658a51342810a2d1d05f8082",
-      godownName: "sidcul godown",
-    },
-    {
-      _id: "6586aecb69943d8ed6a7d2c8",
-      godownName: "BYPASS ROAD",
-    },
-  ]);
+  // const [godownData, setGodownData] = useState([
+  //   {
+  //     _id: "65dc15c87d442240671928e6",
+  //     godownName: "virtual godown",
+  //   },
+  //   {
+  //     _id: "658fc1b672dd0a9107005aa9",
+  //     godownName: "Teen paani godown",
+  //   },
+  //   {
+  //     _id: "658a90b26c98a5c5a0de53b1",
+  //     godownName: "galla mandiii",
+  //   },
+  //   {
+  //     _id: "658a51342810a2d1d05f8082",
+  //     godownName: "sidcul godown",
+  //   },
+  //   {
+  //     _id: "6586aecb69943d8ed6a7d2c8",
+  //     godownName: "BYPASS ROAD",
+  //   },
+  // ]);
 
   const [loading, setLoading] = useState(false);
   const [selectedGodown, setSelectedGodown] = useState("");
   const [godownFilterFocus, setGodownFilterFocus] = useState(false);
   const [dateModalOpen, setDateModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<String>("");
+  const outwardSlips = useSelector((state:any)=>state?.outward?.data)
+  // const godownData = useSelector((state:any)=>state?.outward?.filters?.Godown)
+  const dispatch = useDispatch();
+
 
   const formatDate = (date: Date): string => {
     return date.toISOString().substring(0, 10);
@@ -61,6 +67,15 @@ export default function HomeScreen() {
       console.log("error on date change on past history", error);
     }
   };
+  
+
+  useEffect(()=>{
+    dispatch(getOutwardSlipAsync({limit:20, page:1}));
+  },[])
+
+  // useEffect(()=>{
+  //   dispatch(getOutwardSlipFiltersAsync());
+  // },[])
 
   return (
     <View className="flex-1 h-screen mt-2">
@@ -79,8 +94,8 @@ export default function HomeScreen() {
               selectedTextStyle={styles.selectedTextStyle}
               itemTextStyle={styles.itemContainerStyle}
               containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
-              data={godownData}
-              disable={loading}
+              data={[]}
+              disable={false}
               maxHeight={220}
               labelField="godownName"
               valueField="_id" // need to ask ?
@@ -118,12 +133,12 @@ export default function HomeScreen() {
               selectedTextStyle={styles.selectedTextStyle}
               itemTextStyle={styles.itemContainerStyle}
               containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
-              data={godownData}
-              disable={loading}
+              data={[]}
+              disable={false}
               maxHeight={220}
               labelField="godownName"
               valueField="_id" // need to ask ?
-              placeholder={"Godown"}
+              placeholder={"Order No"}
               value={selectedGodown}
               // onFocus={() => setIsFocus2(true)}
               // onBlur={() => setIsFocus2(false)}
@@ -199,7 +214,7 @@ export default function HomeScreen() {
               selectedTextStyle={styles.selectedTextStyle}
               itemTextStyle={styles.itemContainerStyle}
               containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
-              data={godownData}
+              data={[]}
               disable={loading}
               maxHeight={220}
               labelField="godownName"
@@ -244,7 +259,7 @@ export default function HomeScreen() {
       {/* cards are here */}
       {/* <ScrollView> */}
       <View className="my-4 h-[75%]">
-        <OutwardSlipTable />
+        <OutwardSlipTable data={outwardSlips} type={"outward"}/>
       </View>
 
       {/* pagination starts here */}
@@ -261,7 +276,7 @@ export default function HomeScreen() {
               selectedTextStyle={styles.selectedTextStyle}
               itemTextStyle={styles.itemContainerStyle}
               containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
-              data={godownData}
+              data={[]}
               disable={loading}
               maxHeight={220}
               labelField="godownName"

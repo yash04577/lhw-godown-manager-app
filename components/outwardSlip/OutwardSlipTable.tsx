@@ -1,123 +1,11 @@
+import { getOutwardSlipAsync } from '@/redux/slices/outwardSlice';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, {useState} from 'react';
 import { FlatList, View, Text, TouchableOpacity, ScrollView, TouchableNativeFeedback, StyleSheet} from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-
-const data = [
-    {
-      srNo: 1,
-      orderNumber: 'S/Pawan 8/2024/0127',
-      customerName: 'Cash Sale Yatin',
-      godownName: 'Teen Pani Godown',
-      item: '12MM Jindal Panther Ms Tint Bar',
-      creditDate: '2024-08-23',
-      status: 'Pending',
-      action: 'Accept',
-      godownAssistant: 'Danish',
-    },
-    {
-      srNo: 2,
-      orderNumber: 'S/Amit 8/2024/0128',
-      customerName: 'Sharma & Co',
-      godownName: 'Teen Pani Godown',
-      item: '10MM Tata Tiscon Rod',
-      creditDate: '2024-08-24',
-      status: 'Approved',
-      action: 'Complete',
-      godownAssistant: 'Rakesh',
-    },
-    {
-      srNo: 3,
-      orderNumber: 'S/Rajesh 8/2024/0129',
-      customerName: 'Quick Build Supplies',
-      godownName: 'Main Godown',
-      item: '8MM Sail Steel Bar',
-      creditDate: '2024-08-25',
-      status: 'Rejected',
-      action: 'Review',
-      godownAssistant: 'Mukesh',
-    },
-    {
-      srNo: 4,
-      orderNumber: 'S/Rohit 8/2024/0130',
-      customerName: 'Verma Steel Works',
-      godownName: 'West Zone Godown',
-      item: '6MM JSW Rebars',
-      creditDate: '2024-08-26',
-      status: 'Pending',
-      action: 'Accept',
-      godownAssistant: 'Sandeep',
-    },
-    {
-      srNo: 5,
-      orderNumber: 'S/Anil 8/2024/0131',
-      customerName: 'Metro Constructions',
-      godownName: 'East End Godown',
-      item: '16MM Rathi Steel Rod',
-      creditDate: '2024-08-27',
-      status: 'Approved',
-      action: 'Complete',
-      godownAssistant: 'Vikram',
-    },
-    {
-      srNo: 6,
-      orderNumber: 'S/Vijay 8/2024/0132',
-      customerName: 'Quick Fix Hardware',
-      godownName: 'Teen Pani Godown',
-      item: '20MM JSPL Steel Bar',
-      creditDate: '2024-08-28',
-      status: 'Pending',
-      action: 'Accept',
-      godownAssistant: 'Ravi',
-    },
-    {
-      srNo: 7,
-      orderNumber: 'S/Suresh 8/2024/0133',
-      customerName: 'Global Builders',
-      godownName: 'Main Godown',
-      item: '25MM Tata TMT Bar',
-      creditDate: '2024-08-29',
-      status: 'Pending',
-      action: 'Accept',
-      godownAssistant: 'Arjun',
-    },
-    {
-      srNo: 8,
-      orderNumber: 'S/Sunil 8/2024/0134',
-      customerName: 'Naveen Infrastructure',
-      godownName: 'West Zone Godown',
-      item: '32MM Jindal Steel Rod',
-      creditDate: '2024-08-30',
-      status: 'Approved',
-      action: 'Complete',
-      godownAssistant: 'Amit',
-    },
-    {
-      srNo: 9,
-      orderNumber: 'S/Vikash 8/2024/0135',
-      customerName: 'Elite Constructions',
-      godownName: 'East End Godown',
-      item: '40MM Tata Steel Rebar',
-      creditDate: '2024-08-31',
-      status: 'Rejected',
-      action: 'Review',
-      godownAssistant: 'Krishna',
-    },
-    {
-      srNo: 10,
-      orderNumber: 'S/Deepak 8/2024/0136',
-      customerName: 'City Builders',
-      godownName: 'Teen Pani Godown',
-      item: '18MM Sail TMT Bar',
-      creditDate: '2024-09-01',
-      status: 'Pending',
-      action: 'Accept',
-      godownAssistant: 'Hari',
-    },
-  ];
+import { useDispatch } from 'react-redux';
   
-
-const TableRow = ({ item }:any) => {
+const TableRow = ({ item, index, type }:any) => {
 
     const [godownAssistantData, setGodownAssistantData] = useState([
         { name: 'Bansi', _id: '98098jkhkh' },
@@ -136,20 +24,20 @@ const TableRow = ({ item }:any) => {
 
 <View className="bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto">
       <View className="flex-row justify-between items-center border-b border-gray-200 pb-2">
-        <Text className="text-gray-700 font-medium">{item.srNo}</Text>
-        <Text className="text-gray-700 font-medium">{item.orderNumber}</Text>
+        <Text className="text-gray-700 font-medium">{index+1}</Text>
+        <Text className="text-gray-700 font-medium">{type == "outward" ? item.orderNumber : item.purchaseOrderNumber}</Text>
       </View>
       <View className="flex-row justify-between items-center mt-2">
         <Text className="text-gray-700">{item.customerName}</Text>
-        <Text className="text-gray-700">{item.godownName}</Text>
+        <Text className="text-gray-700">{item.godown}</Text>
       </View>
       <View className="flex-row justify-between items-center mt-2">
-        <Text className="text-gray-700">{item.item}</Text>
-        <Text className="text-gray-700">{item.creditDate}</Text>
+        <Text className="text-gray-700">{item.itemName}</Text>
+        <Text className="text-gray-700">{item?.createdAt?.slice(0,10)}</Text>
       </View>
       <View className="flex-row justify-between items-center mt-2 h-[40px]">
-        <Text className="text-gray-700">{item.status}</Text>
-        <Dropdown
+        <Text className="text-gray-700">{item.status[0]?.value}</Text>
+         { type == "outward" && <Dropdown
               style={[]}
               className="border w-[150px] px-2 py-2 rounded-md"
               placeholderStyle={styles.placeholderStyle}
@@ -186,45 +74,39 @@ const TableRow = ({ item }:any) => {
                   </>
                 );
               }}
-            />
+            /> }
         {/* <Text className="text-gray-700">{item.godownAssistant}</Text> */}
       </View>
       <TouchableOpacity
         className="bg-blue-500 p-2 rounded-md mt-4"
         onPress={() => console.log('Accept pressed')}
       >
-        <Text className="text-white text-center">{item.action}</Text>
+        <Text className="text-white text-center">Accept</Text>
       </TouchableOpacity>
     </View>
     
   );
 };
 
-const OutwardSlipTable = () => {
+const OutwardSlipTable = ({data, type}:any) => {
+
+  const dispatch = useDispatch();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async() =>{
+    setIsRefreshing(true);
+    // dispatch(getOutwardSlipAsync({limit:20, page:1}));
+    setIsRefreshing(false)
+  } 
+
   return (
     <View>
-
-    {/* <ScrollView horizontal className='w-[90%] mx-auto'>
-    <View className={('flex-row justify-between gap-2 items-center px-2 py-4 border-b bg-[#ECEDFE] border-gray-200')}>
-      <Text className={('text-gray-700 font-medium')}>SR</Text>
-      <Text className={('text-gray-700 font-medium')}>Order Number</Text>
-      <Text className={('text-gray-700 font-medium')}>Customer Name</Text>
-      <Text className={('text-gray-700 font-medium')}>Godown Name</Text>
-      <Text className={('text-gray-700 font-medium')}>Item Name</Text>
-      <Text className={('text-gray-700 font-medium')}>Date</Text>
-      <Text className={('text-gray-700 font-medium')}>Status</Text>
-      <TouchableOpacity className={('text-gray-700 font-medium')} onPress={() => console.log('Accept pressed')}>
-        <Text className={('text-gray-700 font-medium')}>Action</Text>
-      </TouchableOpacity>
-      <Text className={('text-gray-700 font-medium')}>Assistant</Text>
-    </View>
-    </ScrollView> */}
-
-
     <FlatList
       data={data}
-      renderItem={({ item }) => <TableRow item={item} />}
-      keyExtractor={(item) => item.srNo.toString()}
+      renderItem={({ item, index}) => <TableRow item={item} index={index} type={type} />}
+      keyExtractor={(index) => index}
+      onRefresh={handleRefresh}
+      refreshing={isRefreshing}
       />
       </View>
   );

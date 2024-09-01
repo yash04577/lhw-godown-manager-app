@@ -1,6 +1,7 @@
 import Pagination from "@/components/commanComponents/Pagination";
 import OutwardSlipCard from "@/components/outwardSlip/OutwardSlipCard";
 import OutwardSlipTable from "@/components/outwardSlip/OutwardSlipTable";
+import { getInwardSlipAsync } from "@/redux/slices/inwardSlice";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
@@ -14,6 +15,7 @@ import {
 } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { Dropdown } from "react-native-element-dropdown";
+import { useDispatch, useSelector } from "react-redux";
 
 const inwardSlip = ()=> {
   const [godownData, setGodownData] = useState([
@@ -39,11 +41,14 @@ const inwardSlip = ()=> {
     },
   ]);
 
+  const dispatch = useDispatch();
+
   const [loading, setLoading] = useState(false);
   const [selectedGodown, setSelectedGodown] = useState("");
   const [godownFilterFocus, setGodownFilterFocus] = useState(false);
   const [dateModalOpen, setDateModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<String>("");
+  const inwardSlips = useSelector((state:any)=>state?.inward?.data)
 
   const formatDate = (date: Date): string => {
     return date.toISOString().substring(0, 10);
@@ -61,6 +66,13 @@ const inwardSlip = ()=> {
       console.log("error on date change on past history", error);
     }
   };
+
+  useEffect(()=>{
+    console.log("inward called")
+    dispatch(getInwardSlipAsync({limit:10, page:1}))
+  },[])
+
+  console.log("inward slipsss ", inwardSlips)
 
   return (
     <View className="flex-1 h-screen mt-2">
@@ -244,7 +256,7 @@ const inwardSlip = ()=> {
       {/* cards are here */}
       {/* <ScrollView> */}
       <View className="my-4 h-[75%]">
-        <OutwardSlipTable />
+        <OutwardSlipTable data={inwardSlips} type={"inward"}/>
       </View>
 
       {/* pagination starts here */}

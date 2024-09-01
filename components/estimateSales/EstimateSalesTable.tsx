@@ -2,133 +2,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import React, {useState} from 'react';
 import { FlatList, View, Text, TouchableOpacity, ScrollView, TouchableNativeFeedback, StyleSheet} from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-
-const data = [
-    {
-      srNo: 1,
-      orderNumber: 'S/Pawan 8/2024/0127',
-      billNumber: 's10/2024/0127',
-      customerName: 'Cash Sale Yatin',
-      godownName: 'Teen Pani Godown',
-      item: '12MM Jindal Panther Ms Tint Bar',
-      creditDate: '2024-08-23',
-      status: 'complete',
-      voucher: 'GST SALE ONLINE',
-      total: '102934',
-    },
-    {
-      srNo: 2,
-      orderNumber: 'S11/2024/5645',
-      billNumber: 'S/Pawan 8/2024/0127',
-      customerName: 'Cash Sale Yatin',
-      godownName: 'Teen Pani Godown',
-      item: '12MM Jindal Panther Ms Tint Bar',
-      creditDate: '2024-08-23',
-      status: 'complete',
-      voucher: 'GST SALE ONLINE',
-      total: '102934',
-    },
-    {
-      srNo: 1,
-      orderNumber: 'S/Pawan 8/2024/0127',
-      billNumber: 'S/Pawan 8/2024/0127',
-      customerName: 'Cash Sale Yatin',
-      godownName: 'Teen Pani Godown',
-      item: '12MM Jindal Panther Ms Tint Bar',
-      creditDate: '2024-08-23',
-      status: 'complete',
-      voucher: 'GST SALE ONLINE',
-      total: '102934',
-    },
-    {
-      srNo: 2,
-      orderNumber: 'S/Pawan 8/2024/0127',
-      billNumber: 'S/Pawan 8/2024/0127',
-      customerName: 'Cash Sale Yatin',
-      godownName: 'Teen Pani Godown',
-      item: '12MM Jindal Panther Ms Tint Bar',
-      creditDate: '2024-08-23',
-      status: 'cancel',
-      voucher: 'GST SALE ONLINE',
-      total: '102934',
-    },
-    {
-      srNo: 1,
-      orderNumber: 'S/Pawan 8/2024/0127',
-      billNumber: 'S/Pawan 8/2024/0127',
-      customerName: 'Cash Sale Yatin',
-      godownName: 'Teen Pani Godown',
-      item: '12MM Jindal Panther Ms Tint Bar',
-      creditDate: '2024-08-23',
-      status: 'complete',
-      voucher: 'GST SALE ONLINE',
-      total: '102934',
-    },
-    {
-      srNo: 2,
-      orderNumber: 'S/Pawan 8/2024/0127',
-      billNumber: 'S/Pawan 8/2024/0127',
-      customerName: 'Cash Sale Yatin',
-      godownName: 'Teen Pani Godown',
-      item: '12MM Jindal Panther Ms Tint Bar',
-      creditDate: '2024-08-23',
-      status: 'complete',
-      voucher: 'GST SALE ONLINE',
-      total: '102934',
-    },
-    {
-      srNo: 1,
-      orderNumber: 'S/Pawan 8/2024/0127',
-      billNumber: 'S/Pawan 8/2024/0127',
-      customerName: 'Cash Sale Yatin',
-      godownName: 'Teen Pani Godown',
-      item: '12MM Jindal Panther Ms Tint Bar',
-      creditDate: '2024-08-23',
-      status: 'cancel',
-      voucher: 'GST SALE ONLINE',
-      total: '102934',
-    },
-    {
-      srNo: 2,
-      orderNumber: 'S/Pawan 8/2024/0127',
-      billNumber: 'S/Pawan 8/2024/0127',
-      customerName: 'Cash Sale Yatin',
-      godownName: 'Teen Pani Godown',
-      item: '12MM Jindal Panther Ms Tint Bar',
-      creditDate: '2024-08-23',
-      status: 'cancel',
-      voucher: 'GST SALE ONLINE',
-      total: '102934',
-    },
-    {
-      srNo: 1,
-      orderNumber: 'S/Pawan 8/2024/0127',
-      billNumber: 'S/Pawan 8/2024/0127',
-      customerName: 'Cash Sale Yatin',
-      godownName: 'Teen Pani Godown',
-      item: '12MM Jindal Panther Ms Tint Bar',
-      creditDate: '2024-08-23',
-      status: 'cancel',
-      voucher: 'GST SALE ONLINE',
-      total: '102934',
-    },
-    {
-      srNo: 2,
-      orderNumber: 'S/Pawan 8/2024/0127',
-      billNumber: 'S/Pawan 8/2024/0127',
-      customerName: 'Cash Sale Yatin',
-      godownName: 'Teen Pani Godown',
-      item: '12MM Jindal Panther Ms Tint Bar',
-      creditDate: '2024-08-23',
-      status: 'complete',
-      voucher: 'GST SALE ONLINE',
-      total: '102934',
-    },
-    
-  ];
   
 
-const TableRow = ({ item }:any) => {
+const TableRow = ({ item, type, index }:any) => {
 
     const [godownAssistantData, setGodownAssistantData] = useState([
         { name: 'Bansi', _id: '98098jkhkh' },
@@ -145,51 +21,34 @@ const TableRow = ({ item }:any) => {
   return (
     
 
-<View className={`${item.status == "complete" ? "bg-green-300" : "bg-red-300" } bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto`}>
+<View className={`bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto`}>
       <View className="flex-row justify-between items-center border-b border-gray-200 pb-2">
-        <Text className="text-gray-700 font-medium">{item.srNo}</Text>
-        <Text className="text-gray-700">{item.godownName}</Text>
-        <Text className="text-gray-700 font-medium">{item.billNumber}</Text>
+        <Text className="text-gray-700 font-medium">{index+1}</Text>
+        <Text className="text-gray-700">{item?.godown}</Text>
+        <Text className="text-gray-700 font-medium">{item?.billNumber}</Text>
       </View>
       <View className="flex-row justify-between items-center mt-2">
-        <Text className="text-gray-700">{item.customerName}</Text>
-        <Text className="text-gray-700">{item.orderNumber}</Text>
+        <Text className="text-gray-700">{item?.customerName}</Text>
+        <Text className="text-gray-700">{ item?.salesOrderNumber}</Text>
       </View>
       <View className="flex-row justify-between items-center mt-2">
-        <Text className="text-gray-700">{item.creditDate}</Text>
+        <Text className="text-gray-700">{item?.createdDate?.slice(0,10)}</Text>
         {/* <Text className="text-gray-700">{item.status}</Text> */}
-        <Text className="text-gray-700">{item.total}</Text>
+        <Text className="text-gray-700">&#8377; {item?.total?.toFixed(0)}</Text>
       </View>
     </View>
     
   );
 };
 
-const EstimateSalesTable = () => {
+const EstimateSalesTable = ({data, type}:any) => {
   return (
     <View>
 
-    {/* <ScrollView horizontal className='w-[90%] mx-auto'>
-    <View className={('flex-row justify-between gap-2 items-center px-2 py-4 border-b bg-[#ECEDFE] border-gray-200')}>
-      <Text className={('text-gray-700 font-medium')}>SR</Text>
-      <Text className={('text-gray-700 font-medium')}>Order Number</Text>
-      <Text className={('text-gray-700 font-medium')}>Customer Name</Text>
-      <Text className={('text-gray-700 font-medium')}>Godown Name</Text>
-      <Text className={('text-gray-700 font-medium')}>Item Name</Text>
-      <Text className={('text-gray-700 font-medium')}>Date</Text>
-      <Text className={('text-gray-700 font-medium')}>Status</Text>
-      <TouchableOpacity className={('text-gray-700 font-medium')} onPress={() => console.log('Accept pressed')}>
-        <Text className={('text-gray-700 font-medium')}>Action</Text>
-      </TouchableOpacity>
-      <Text className={('text-gray-700 font-medium')}>Assistant</Text>
-    </View>
-    </ScrollView> */}
-
-
     <FlatList
       data={data}
-      renderItem={({ item }) => <TableRow item={item} />}
-      keyExtractor={(item) => item.srNo.toString()}
+      renderItem={({ item, index }) => <TableRow item={item} type={type} index={index} />}
+      keyExtractor={(index)=>index}
       />
       </View>
   );

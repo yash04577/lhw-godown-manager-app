@@ -2,6 +2,7 @@ import Pagination from "@/components/commanComponents/Pagination";
 import EstimateSalesTable from "@/components/estimateSales/EstimateSalesTable";
 import OutwardSlipCard from "@/components/outwardSlip/OutwardSlipCard";
 import OutwardSlipTable from "@/components/outwardSlip/OutwardSlipTable";
+import { getEstimatePurchaseAsync } from "@/redux/slices/estimatePurchaseSlice";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
@@ -15,6 +16,7 @@ import {
 } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { Dropdown } from "react-native-element-dropdown";
+import { useDispatch, useSelector } from "react-redux";
 
 const estimatePurchase = ()=> {
   const [godownData, setGodownData] = useState([
@@ -45,6 +47,9 @@ const estimatePurchase = ()=> {
   const [godownFilterFocus, setGodownFilterFocus] = useState(false);
   const [dateModalOpen, setDateModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<String>("");
+  const purchaseBills = useSelector((state:any)=>state?.purchase?.data)
+
+  const dispatch = useDispatch();
 
   const formatDate = (date: Date): string => {
     return date.toISOString().substring(0, 10);
@@ -62,6 +67,14 @@ const estimatePurchase = ()=> {
       console.log("error on date change on past history", error);
     }
   };
+
+  useEffect(()=>{
+    dispatch(getEstimatePurchaseAsync({page:1, limit:10, customer:"", godownId:""}));
+  },[])
+
+  useEffect(()=>{
+    console.log("purchase bills ", purchaseBills)
+  },[purchaseBills])
 
   return (
     <View className="flex-1 h-screen mt-2">
@@ -246,7 +259,7 @@ const estimatePurchase = ()=> {
       {/* cards are here */}
       {/* <ScrollView> */}
       <View className="my-4 h-[75%]">
-        <EstimateSalesTable />
+        <EstimateSalesTable data={purchaseBills} type={"purchase"}/>
       </View>
 
       {/* pagination starts here */}
