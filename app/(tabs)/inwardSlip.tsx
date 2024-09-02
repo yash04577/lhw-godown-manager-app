@@ -3,6 +3,7 @@ import OutwardSlipCard from "@/components/outwardSlip/OutwardSlipCard";
 import OutwardSlipTable from "@/components/outwardSlip/OutwardSlipTable";
 import { getInwardSlipAsync } from "@/redux/slices/inwardSlice";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   StyleSheet,
@@ -42,6 +43,7 @@ const inwardSlip = ()=> {
   ]);
 
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
   const [selectedGodown, setSelectedGodown] = useState("");
@@ -244,11 +246,16 @@ const inwardSlip = ()=> {
             />
           </View>
         </ScrollView>
-        <View className="w-[90%]">
+        <View className="w-[90%] flex flex-row">
         <TextInput 
           placeholder="Search Customer..." 
-          className="border w-full mx-auto px-2 py-1 rounded-md bg-white"
+          className="border w-[62%] mx-auto px-2 py-1 rounded-md bg-white"
         />
+        <View>
+          <TouchableOpacity className="bg-green-400 rounded-md p-3" onPress={()=>router.push("../acceptedItemsPurchase")}>
+              <Text className="text-black font-medium">Accepted Items</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       </View>
 

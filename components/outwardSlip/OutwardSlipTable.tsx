@@ -1,5 +1,6 @@
 import { acceptItemAsync, getOutwardSlipAsync } from "@/redux/slices/outwardSlice";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
 import {
   FlatList,
@@ -14,10 +15,11 @@ import { Dropdown } from "react-native-element-dropdown";
 import { useDispatch } from "react-redux";
 
 const TableRow = ({ item, index, type, assistant }: any) => {
-  const [selectedAssistant, setSelectedAssitant] = useState();
+  const [selectedAssistant, setSelectedAssitant] = useState(null);
   const [loading, setLoading] = useState(false);
   const [godownFilterFocus, setGodownFilterFocus] = useState(false);
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const handleAccept = async(item:any) =>{
     try {
@@ -45,12 +47,12 @@ const TableRow = ({ item, index, type, assistant }: any) => {
           {type == "outward" ? item.orderNumber : item.purchaseOrderNumber}
         </Text>
       </View>
-      <View className="flex-row justify-between items-center mt-2">
-        <Text className="text-gray-700">{item.customerName}</Text>
+      <View className="flex-row justify-between items-start mt-2">
+        <Text className="text-gray-700 w-[60%]">{item.customerName}</Text>
         <Text className="text-gray-700">{item.godown}</Text>
       </View>
-      <View className="flex-row justify-between items-center mt-2">
-        <Text className="text-gray-700">{item.itemName}</Text>
+      <View className="flex-row justify-between items-start mt-2">
+        <Text className="text-gray-700 w-[60%]">{item.itemName}</Text>
         <Text className="text-gray-700">{item?.createdAt?.slice(0, 10)}</Text>
       </View>
       <View className="flex-row justify-between items-center mt-2 h-[40px]">
@@ -79,9 +81,9 @@ const TableRow = ({ item, index, type, assistant }: any) => {
             renderLeftIcon={() => {
               return (
                 <>
-                  {selectedAssistant != "" && (
+                  {selectedAssistant != null && (
                     <TouchableNativeFeedback
-                      onPress={() => setSelectedAssitant("")}
+                      onPress={() => setSelectedAssitant(null)}
                     >
                       <MaterialIcons name="cancel" size={20} color={"black"} />
                     </TouchableNativeFeedback>
@@ -125,7 +127,7 @@ const OutwardSlipTable = ({ data, type, assistant }: any) => {
             assistant={assistant}
           />
         )}
-        keyExtractor={(index) => index}
+        // keyExtractor={(index) => index}
         onRefresh={handleRefresh}
         refreshing={isRefreshing}
       />

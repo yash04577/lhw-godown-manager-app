@@ -1,5 +1,5 @@
 import axios from "axios";
-import { acceptItemApiPath, assistantApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath } from "../apiRoutes";
+import { acceptItemApiPath, assistantApiPath, basePath, outawrdSlipApiPath, outwardSlipFiltersApiPath } from "../apiRoutes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -26,10 +26,10 @@ export const getOutwardSlip = async(query:any) =>{
 }
 
 
-export const getOutwardSlipFilters = async(query:any) =>{
+export const getOutwardSlipFilters = async({customer, orderNumber, salesPerson}:any) =>{
     try {
         const cookie = await getCookie();
-        const {data} = await axios.get(outwardSlipFiltersApiPath, {withCredentials:true, headers:{Cookie: cookie}});
+        const {data} = await axios.get(`${basePath}/salesOrder/getPastOrderFilter/option/v2?customer=${customer ? customer : ""}&salesOrder=${orderNumber ? orderNumber : ""}&user=${salesPerson ? salesPerson : ""}`, {withCredentials:true, headers:{Cookie: cookie}});
         console.log("outward filters", data)
         return data
     } catch (error) {
