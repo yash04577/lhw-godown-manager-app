@@ -41,7 +41,7 @@ export const getEstimatePurchaseAsync: any = createAsyncThunk(
     async (query) => {
         try {
             const response: any = await getEstimatePurchase(query);
-            console.log("query slice", response)
+            // console.log("query slice", response)
             return response;
         }
         catch (err) {
@@ -76,7 +76,6 @@ export const PurchaseSlice = createSlice({
             .addCase(getEstimatePurchaseAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
                 state.data = action.payload.data;
-                console.log("ye thi ", action.payload.data)
             })
            
     }

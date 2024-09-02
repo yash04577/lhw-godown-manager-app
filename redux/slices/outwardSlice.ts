@@ -44,7 +44,7 @@ export const getOutwardSlipAsync: any = createAsyncThunk(
     async (query) => {
         try {
             const response: any = await getOutwardSlip(query);
-            console.log("query slice", response)
+            // console.log("query slice", response)
             return response;
         }
         catch (err) {
@@ -58,7 +58,7 @@ export const getOutwardSlipFiltersAsync: any = createAsyncThunk(
     async (query) => {
         try {
             const response: any = await getOutwardSlipFilters(query);
-            console.log("filter slice async", response)
+            // console.log("filter slice async", response)
             return response;
         }
         catch (err) {
@@ -86,7 +86,7 @@ export const acceptItemAsync: any = createAsyncThunk(
     async (payload) => {
         try {
             const response: any = await acceptItem(payload);
-            console.log("accept item slice res ", response);
+            // console.log("accept item slice res ", response);
             return response;
         }
         catch (err) {
@@ -113,7 +113,6 @@ export const OutwardSlice = createSlice({
             })
             .addCase(getOutwardSlipFiltersAsync.fulfilled, (state, action) => {
                 state.filterLoading = false;
-                console.log("ssssssssssss ", action.payload)
                 state.filters = action.payload;
             })
             .addCase(getAssistantAsync.pending, (state) => {
@@ -122,7 +121,6 @@ export const OutwardSlice = createSlice({
             .addCase(getAssistantAsync.fulfilled, (state, action) => {
                 state.filterLoading = false;
                 state.assistant = action.payload.data;
-                console.log("assssitany ", action.payload.data)
             })
             .addCase(acceptItemAsync.pending, (state) => {
                 state.filterLoading = true;

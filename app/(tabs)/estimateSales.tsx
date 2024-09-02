@@ -73,9 +73,7 @@ const estimateSales = ()=> {
     dispatch(getEstimateSalesAsync({page:1, limit:10}));
   },[])
 
-  useEffect(()=>{
-    console.log("salesbills ", estimateSales)
-  },[estimateSales])
+ 
 
   return (
     <View className="flex-1 h-screen mt-2">

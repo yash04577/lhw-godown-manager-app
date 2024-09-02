@@ -44,7 +44,7 @@ export const getEstimateSalesAsync: any = createAsyncThunk(
     async (query) => {
         try {
             const response: any = await getEstimateSales(query);
-            console.log("query slice", response)
+            // console.log("query slice", response)
             return response;
         }
         catch (err) {

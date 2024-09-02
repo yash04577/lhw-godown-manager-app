@@ -43,7 +43,7 @@ export const getInwardSlipAsync: any = createAsyncThunk(
     async (query) => {
         try {
             const response: any = await getInwarddSlip(query);
-            console.log("query slice", response)
+            // console.log("query slice", response)
             return response;
         }
         catch (err) {

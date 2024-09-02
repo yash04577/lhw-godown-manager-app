@@ -39,6 +39,8 @@ export default function HomeScreen() {
   const outwardSlips = useSelector((state: any) => state?.outward?.data);
   const assistants = useSelector((state: any) => state?.outward?.assistant);
   const refreshData = useSelector((state: any) => state?.outward?.refreshData);
+  const [query, setQuery] = useState({limit:20,page: 1,})
+  // const [query, setQuery] = useState({customerId: "",date: "",godownId: "",limit:20,orderNumber: "",page: 1,})
   // const godownData = useSelector((state:any)=>state?.outward?.filters?.Godown)
   const filters = useSelector((state: any) => state?.outward?.filters);
   const [filterStatus, setFilterStatus] = useState([
@@ -62,9 +64,6 @@ export default function HomeScreen() {
     dispatch(getAssistantAsync());
   }, [refreshData]);
 
-  useEffect(() => {
-    console.log("ye h wo ", filters);
-  }, [filters]);
 
   useEffect(() => {
     dispatch(getOutwardSlipFiltersAsync());
@@ -72,6 +71,8 @@ export default function HomeScreen() {
 
 
   const handleDateChange = (event:any, selectedDate:any) => {
+
+
     if (selectedDate) {
         // Adjust for local time
         const offsetDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
@@ -80,19 +81,18 @@ export default function HomeScreen() {
 
     setDateModalOpen(false)
     let formattedDate = formatDate(date);
-    dispatch(getOutwardSlipAsync({ limit: 20, page: 1, date:formattedDate}));
+    setQuery((query:any)=>({
+      ...query,
+      date: formattedDate
+    }))
 
 };
 
-useEffect(()=>{
-  console.log("fix date ", date)
-},[date])
 
+  useEffect(()=>{
+    dispatch(getOutwardSlipAsync(query));
+  },[query])
   
-
-useEffect(()=>{
-  console.log("selected godown ", selectedGodown)
-},[selectedGodown])
 
   return (
     <View className="flex-1 h-screen mt-2">
@@ -119,7 +119,10 @@ useEffect(()=>{
               value={selectedGodown}
               onChange={(godown: any) => {
                 setSelectedGodown(godown);
-                dispatch(getOutwardSlipAsync({ limit: 20, page: 1, godownId:godown._id }));
+                setQuery((query:any)=>({
+                  ...query,
+                  godownId: godown._id
+                }))
               }}
               renderLeftIcon={() => {
                 return (
@@ -157,8 +160,10 @@ useEffect(()=>{
               value={selectedOrderNumber}
               onChange={(orderNumber: any) => {
                 setSelectedOrderNumber(orderNumber)
-                console.log("order number ", orderNumber)
-                dispatch(getOutwardSlipAsync({ limit: 20, page: 1, orderNumber:orderNumber.orderNumber }));
+                setQuery((query:any)=>({
+                  ...query,
+                  orderNumber: orderNumber.orderNumber
+                }))
               }}
               onChangeText={(orderNumber:any)=>{
                 dispatch(getOutwardSlipFiltersAsync({orderNumber:orderNumber}));
@@ -230,7 +235,10 @@ useEffect(()=>{
               value={selectedGodown}
               onChange={(status: any) => {
                 setSelectedStatus(status);
-                dispatch(getOutwardSlipAsync({ limit: 20, page: 1, status:status.value }));
+                setQuery((query:any)=>({
+                  ...query,
+                  status: status.value
+                }))
               }}
               renderLeftIcon={() => {
                 return (
@@ -271,7 +279,10 @@ useEffect(()=>{
               value={selectedCustomer}
               onChange={(customer: any) => {
                 setSelectedCustomer(customer)
-                dispatch(getOutwardSlipAsync({ limit: 20, page: 1, customerId:customer._id }));
+                setQuery((query:any)=>({
+                  ...query,
+                  customerId: customer._id
+                }))
               }}
               onChangeText={(customer:any)=>{
                 dispatch(getOutwardSlipFiltersAsync({customer:customer}));
@@ -312,6 +323,12 @@ useEffect(()=>{
         <OutwardSlipTable
           data={outwardSlips}
           assistant={assistants}
+          setDate={setDate}
+          setSelectedOrderNumber={setSelectedOrderNumber}
+          setSelectedStatus={setSelectedStatus}
+          setSelectedCustomer={setSelectedCustomer}
+          setSelectedGodown={setSelectedGodown}
+          setQuery={setQuery}
           type={"outward"}
         />
       </View>

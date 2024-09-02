@@ -17,7 +17,7 @@ export const getEstimatePurchase = async(query:any) =>{
     try {
         
         const {data} = await axios.post(estimatePurchaseApiPath, query);
-        console.log("inward data ", data)
+        // console.log("inward data ", data)
         return data
     } catch (error) {
         console.log("error on inward login api ", error)

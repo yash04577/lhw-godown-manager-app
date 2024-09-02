@@ -72,9 +72,6 @@ const estimatePurchase = ()=> {
     dispatch(getEstimatePurchaseAsync({page:1, limit:10, customer:"", godownId:""}));
   },[])
 
-  useEffect(()=>{
-    console.log("purchase bills ", purchaseBills)
-  },[purchaseBills])
 
   return (
     <View className="flex-1 h-screen mt-2">

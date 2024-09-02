@@ -70,11 +70,9 @@ const inwardSlip = ()=> {
   };
 
   useEffect(()=>{
-    console.log("inward called")
     dispatch(getInwardSlipAsync({limit:10, page:1}))
   },[])
 
-  console.log("inward slipsss ", inwardSlips)
 
   return (
     <View className="flex-1 h-screen mt-2">

@@ -25,12 +25,10 @@ const index = () => {
 
     useEffect(()=>{
       const cookie = getCookie();
-      console.log("cookie mili ", cookie)
     },[])
 
     useEffect(()=>{
-      console.log("finally cookie ", authCookie)
-  
+      
       if(authCookie){
         router.push("/(tabs)");
       }

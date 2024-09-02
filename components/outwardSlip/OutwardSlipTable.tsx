@@ -105,13 +105,17 @@ const TableRow = ({ item, index, type, assistant }: any) => {
   );
 };
 
-const OutwardSlipTable = ({ data, type, assistant }: any) => {
+const OutwardSlipTable = ({ data, type, assistant, setQuery, setSelectedOrderNumber, setSelectedStatus, setSelectedCustomer, setSelectedGodown }: any) => {
   
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // dispatch(getOutwardSlipAsync({limit:20, page:1}));
+    setQuery({limit:20,page: 1,});
+    setSelectedCustomer(null);
+    setSelectedOrderNumber(null);
+    setSelectedGodown(null);
+    setSelectedStatus(null);
     setIsRefreshing(false);
   };
 
