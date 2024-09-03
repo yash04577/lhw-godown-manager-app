@@ -1,4 +1,11 @@
-import { acceptItemAsync, getOutwardSlipAsync } from "@/redux/slices/outwardSlice";
+import {
+  acceptPurchaseItemAsync,
+  getInwardSlipAsync,
+} from "@/redux/slices/inwardSlice";
+import {
+  acceptItemAsync,
+  getOutwardSlipAsync,
+} from "@/redux/slices/outwardSlice";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
@@ -10,6 +17,7 @@ import {
   ScrollView,
   TouchableNativeFeedback,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { useDispatch } from "react-redux";
@@ -21,23 +29,31 @@ const TableRow = ({ item, index, type, assistant }: any) => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const handleAccept = async(item:any) =>{
+  const handleAccept = async (item: any) => {
     try {
+      if (type == "inward") {
+        console.log("item purchase ", item);
+        dispatch(
+          acceptPurchaseItemAsync({
+            elementId: item.elementId,
+            orderId: item.purchaseOrder_id,
+            status: "accepted",
+          })
+        );
+      } else {
+        const payload = {
+          elementId: item.elementId,
+          loadingPerson: selectedAssistant?._id,
+          orderId: item.orderId,
+          status: "accepted",
+        };
 
-      const payload = {
-        elementId: item.elementId,
-        loadingPerson: selectedAssistant?._id,
-        orderId: item.orderId,
-        status: "accepted",
+        dispatch(acceptItemAsync(payload));
       }
-
-      dispatch(acceptItemAsync(payload));
-      
     } catch (error) {
-      console.log("my error ", error)
+      console.log("my error ", error);
     }
-  }
-  
+  };
 
   return (
     <View className="bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto">
@@ -56,7 +72,41 @@ const TableRow = ({ item, index, type, assistant }: any) => {
         <Text className="text-gray-700">{item?.createdAt?.slice(0, 10)}</Text>
       </View>
       <View className="flex-row justify-between items-center mt-2 h-[40px]">
-        <Text className="text-gray-700">{item.status[0]?.value}</Text>
+        <Text
+          className="text-gray-700 px-4 py-2 rounded-md"
+          style={{
+            backgroundColor:
+              item.status[item.status.length - 1]?.value === "pending"
+                ? "#FFE5E5"
+                : item.status[item.status.length - 1]?.value === "scanned"
+                ? "#E6EBFF"
+                : item.status[item.status.length - 1]?.value === "weightDone" ||
+                  "verified"
+                ? "#FFF2DC"
+                : item.status[item.status.length - 1]?.value === "accepted"
+                ? "#D7FFF3"
+                : item.status[item.status.length - 1]?.value === "unloading"
+                ? "#FFCEF7"
+                : "",
+            color:
+              item.status[item.status.length - 1]?.value === "pending"
+                ? "#DC2626"
+                : item.status[item.status.length - 1]?.value === "scanned"
+                ? "#0A6FFF"
+                : item.status[item.status.length - 1]?.value === "weightDone" ||
+                  "verified"
+                ? "#F59E0B"
+                : item.status[item.status.length - 1]?.value === "accepted"
+                ? "#059669"
+                : item.status[item.status.length - 1]?.value === "unloading"
+                ? "#C200B1"
+                : "",
+          }}
+        >
+          {type == "outward"
+            ? item.status[0]?.value
+            : item.status[item.status.length - 1]?.value}
+        </Text>
         {type == "outward" && (
           <Dropdown
             style={[]}
@@ -95,34 +145,95 @@ const TableRow = ({ item, index, type, assistant }: any) => {
         )}
         {/* <Text className="text-gray-700">{item.godownAssistant}</Text> */}
       </View>
-      <TouchableOpacity
-        className="bg-blue-500 p-2 rounded-md mt-4"
-        onPress={() => handleAccept(item)}
-      >
-        <Text className="text-white text-center">Accept</Text>
-      </TouchableOpacity>
+
+      {type == "outward" ? (
+        <TouchableOpacity
+          className="bg-blue-500 p-2 rounded-md mt-4"
+          onPress={() => handleAccept(item)}
+        >
+          <Text className="text-white text-center">Accept</Text>
+        </TouchableOpacity>
+      ) : (
+        <>
+          {item.status[item.status.length - 1]?.value === "pending" ? (
+            <TouchableOpacity
+              className="font-medium bg-blue-500 p-2 rounded-md mt-4 text-center w-full flex justify-center items-center disabled:opacity-50"
+              onPress={() => {
+                if (item.godown === null) {
+                  Alert.alert("Please assign a godown first.");
+                } else {
+                  handleAccept(item);
+                }
+              }}
+            >
+              <Text className="text-white text-xl">Accept</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              className="font-medium bg-[#0C6549] p-2 rounded-md mt-4 w-full justify-center items-center disabled:opacity-50"
+              onPress={() => {
+                if (item.godown === null) {
+                  Alert.alert("Please assign a godown first.");
+                } else {
+                  handleAccept(item);
+                }
+              }}
+            >
+              <Text className="text-xl text-white">Re-Accept</Text>
+            </TouchableOpacity>
+          )}
+        </>
+      )}
     </View>
   );
 };
 
-const OutwardSlipTable = ({ data, type, assistant, setQuery, setSelectedOrderNumber, setSelectedStatus, setSelectedCustomer, setSelectedGodown }: any) => {
-  
+const OutwardSlipTable = ({
+  data,
+  type,
+  assistant,
+  setQuery,
+  setSelectedOrderNumber,
+  setSelectedStatus,
+  setSelectedCustomer,
+  setSelectedGodown,
+  setDate,
+}: any) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const dispatch = useDispatch();
 
   const handleRefresh = async () => {
-    setIsRefreshing(true);
-    setQuery({limit:20,page: 1,});
-    setSelectedCustomer(null);
-    setSelectedOrderNumber(null);
-    setSelectedGodown(null);
-    setSelectedStatus(null);
-    setIsRefreshing(false);
+    if (type == "inward") {
+      setSelectedCustomer(null);
+      setSelectedOrderNumber(null);
+      setSelectedStatus(null);
+      setDate(new Date(Date.now()));
+      dispatch(getInwardSlipAsync({ limit: 10, page: 1 }));
+    } else {
+      setIsRefreshing(true);
+      setQuery({ limit: 20, page: 1 });
+      setSelectedCustomer(null);
+      setSelectedOrderNumber(null);
+      setSelectedGodown(null);
+      setSelectedStatus(null);
+      setIsRefreshing(false);
+    }
   };
 
   return (
     <View>
       <FlatList
         data={data}
+        // onEndReached={()=>setQuery((prevState:any)=>({
+        //   ...prevState,
+        //   page: prevState.page + 1,
+        // }))}
+        // ListFooterComponent={loading ? ListEndLoader : ""}
+        // onEndReachedThreshold={1}
+        // ListEmptyComponent={<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 50 }}>
+        //   <Text className=' text-base  text-gray-800'>No data available.</Text>
+        // </View>
+        // }
         renderItem={({ item, index }) => (
           <TableRow
             item={item}

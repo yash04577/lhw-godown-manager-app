@@ -232,7 +232,7 @@ export default function HomeScreen() {
               labelField="value"
               valueField="value" // need to ask ?
               placeholder={"Status"}
-              value={selectedGodown}
+              value={selectedStatus}
               onChange={(status: any) => {
                 setSelectedStatus(status);
                 setQuery((query:any)=>({
@@ -243,7 +243,7 @@ export default function HomeScreen() {
               renderLeftIcon={() => {
                 return (
                   <>
-                    {selectedGodown != null && (
+                    {selectedStatus != null && (
                       <TouchableNativeFeedback
                         onPress={() => setSelectedStatus(null)}
                       >
@@ -319,7 +319,7 @@ export default function HomeScreen() {
 
       {/* cards are here */}
       {/* <ScrollView> */}
-      <View className="my-4 h-[75%]">
+      <View className="my-4 h-[85%]">
         <OutwardSlipTable
           data={outwardSlips}
           assistant={assistants}
@@ -334,7 +334,7 @@ export default function HomeScreen() {
       </View>
 
       {/* pagination starts here */}
-      <View className="w-[90%] mx-auto flex flex-row justify-between">
+      {/* <View className="w-[90%] mx-auto flex flex-row justify-between">
         <View className="w-[150px]">
           <Pagination />
         </View>
@@ -375,7 +375,7 @@ export default function HomeScreen() {
             }}
           />
         </View>
-      </View>
+      </View> */}
       {/* </ScrollView> */}
     </View>
   );

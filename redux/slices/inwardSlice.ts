@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from "../api/authApi";
 import { getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
-import { getInwarddSlip } from "../api/inwardApi";
+import { acceptPurchaseItem, getInwardSlipFilters, getInwarddSlip } from "../api/inwardApi";
 
 
 interface LoginState {
@@ -16,7 +16,8 @@ const initialState = {
     filters: {},
     loading:false,
     filterLoading:false,
-    status: 'idle'
+    status: 'idle',
+    refreshData:false,
 }
 
 
@@ -52,19 +53,33 @@ export const getInwardSlipAsync: any = createAsyncThunk(
     }
 )
 
-// export const getOutwardSlipFiltersAsync: any = createAsyncThunk(
-//     "getOutwardSlipFiltersAsync",
-//     async (query) => {
-//         try {
-//             const response: any = await getOutwardSlipFilters(query);
-//             console.log("filter slice", response)
-//             return response;
-//         }
-//         catch (err) {
-//             console.log("error on login slice ", err)
-//         }
-//     }
-// )
+export const getInwardSlipFiltersAsync: any = createAsyncThunk(
+    "getInwardSlipFiltersAsync",
+    async () => {
+        try {
+            const response: any = await getInwardSlipFilters();
+            console.log("inward filter slice", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on login slice ", err)
+        }
+    }
+)
+
+export const acceptPurchaseItemAsync: any = createAsyncThunk(
+    "acceptPurchaseItemAsync",
+    async (payload) => {
+        try {
+            const response: any = await acceptPurchaseItem(payload);
+            // console.log("accept item slice res ", response);
+            return response;
+        }
+        catch (err) {
+            console.log("error on accept item slice ", err)
+        }
+    }
+)
 
 export const InwardSlice = createSlice({
     name: 'inward',
@@ -78,6 +93,22 @@ export const InwardSlice = createSlice({
             .addCase(getInwardSlipAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
                 state.data = action.payload.data;
+            })
+            .addCase(getInwardSlipFiltersAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getInwardSlipFiltersAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                // console.log("action payload ", action.payload)
+                state.filters = action.payload;
+            })
+            .addCase(acceptPurchaseItemAsync.pending, (state) => {
+                state.status = 'loading'
+                state.refreshData = false;
+            })
+            .addCase(acceptPurchaseItemAsync.fulfilled, (state, action) => {
+                state.status = 'completed'
+                state.refreshData = true;
             })
            
     }
