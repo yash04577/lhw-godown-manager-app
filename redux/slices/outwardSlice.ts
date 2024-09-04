@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from "../api/authApi";
-import { acceptItem, getAssitant, getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
+import { acceptItem, getAcceptedOrderDetailsSales, getAssitant, getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
+import { getAcceptedItemsSales } from "../api/inwardApi";
 
 
 interface LoginState {
@@ -18,6 +19,8 @@ const initialState = {
     filterLoading:false,
     status: 'idle',
     refreshData:false,
+    acceptedOrder:[],
+    orderDetail:{},
 }
 
 
@@ -95,6 +98,34 @@ export const acceptItemAsync: any = createAsyncThunk(
     }
 )
 
+export const getAcceptedItemsSalesAsync: any = createAsyncThunk(
+    "getAcceptedItemsSalesAsync",
+    async (payload) => {
+        try {
+            const response: any = await getAcceptedItemsSales();
+            console.log("items mile ", response);
+            return response;
+        } catch (error) {
+            console.log("error on get accept item slice ", error)
+        }
+    }
+)
+
+export const getAcceptedOrderDetailsSalesAsync: any = createAsyncThunk(
+    "getAcceptedOrderDetailsSalesAsync",
+    async (query) => {
+        try {
+            const response: any = await getAcceptedOrderDetailsSales(query);
+            // console.log("query slice", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on login slice ", err)
+        }
+    }
+)
+
+
 export const OutwardSlice = createSlice({
     name: 'outward',
     initialState,
@@ -129,6 +160,20 @@ export const OutwardSlice = createSlice({
             .addCase(acceptItemAsync.fulfilled, (state, action) => {
                 state.filterLoading = false;
                 state.refreshData = true;
+            })
+            .addCase(getAcceptedItemsSalesAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getAcceptedItemsSalesAsync.fulfilled, (state, action) => {
+                state.status = 'completed'
+                state.acceptedOrder = action?.payload?.data?.salesOrders
+            })
+            .addCase(getAcceptedOrderDetailsSalesAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getAcceptedOrderDetailsSalesAsync.fulfilled, (state, action) => {
+                state.status = 'completed'
+                state.orderDetail = action.payload.data
             })
     }
 

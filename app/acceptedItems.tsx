@@ -1,36 +1,29 @@
 import { FlatList, StyleSheet, Text, TextInput, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { MaterialIcons } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAcceptedItemsSalesAsync, getAcceptedOrderDetailsSalesAsync } from '@/redux/slices/outwardSlice';
+import { useRouter } from 'expo-router';
+
+
 
 const TableRow = ({ item, index, type, assistant }: any) => {
+  const dispatch = useDispatch();
   const [selectedAssistant, setSelectedAssitant] = useState();
   const [loading, setLoading] = useState(false);
   const [godownFilterFocus, setGodownFilterFocus] = useState(false);
-  // const dispatch = useDispatch();
-  // const router = useRouter();
+  const router = useRouter();
 
-  // const handleAccept = async(item:any) =>{
-  //   try {
 
-  //     const payload = {
-  //       elementId: item.elementId,
-  //       loadingPerson: selectedAssistant?._id,
-  //       orderId: item.orderId,
-  //       status: "accepted",
-  //     }
-
-  //     dispatch(acceptItemAsync(payload));
-      
-  //   } catch (error) {
-  //     console.log("my error ", error)
-  //   }
-  // }
-  
+  const handleClick = () =>{
+    dispatch(getAcceptedOrderDetailsSalesAsync({customerId:item?.customer?._id, orderNumber:item?.orderNumber}))
+    router.push("/acceptedOrder");
+  }
 
   return (
       <TouchableOpacity
       className="rounded-md"
-        onPress={() => console.log("pressed on ", item)}
+        onPress={handleClick}
       >
     <View className="bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto">
       <View className="flex-row justify-between items-center border-b border-gray-200 pb-2">
@@ -40,7 +33,7 @@ const TableRow = ({ item, index, type, assistant }: any) => {
         </Text>
       </View>
       <View className="flex-row justify-between items-center mt-2">
-        <Text className="text-gray-700">{item.customerName} {item.customercode}</Text>
+        <Text className="text-gray-700">{item?.customer?.customerName} {item?.customer?.customercode}</Text>
         <Text className="text-gray-700">{item.date}</Text>
       
       </View>
@@ -54,18 +47,22 @@ const TableRow = ({ item, index, type, assistant }: any) => {
 
 const acceptedItems = () => {
 
-  const orders = [
-    { date: '15-08-2024', customerName: 'Rohit', customercode: 'p1234', orderNumber: 's/vijay/04/7-24/034' },
-    { date: '02-11-2024', customerName: 'Ananya', customercode: 'p5678', orderNumber: 's/vijay/06/3-24/097' },
-    { date: '30-03-2024', customerName: 'Priya', customercode: 'p9101', orderNumber: 's/vijay/09/5-24/045' },
-    { date: '21-09-2024', customerName: 'Vikram', customercode: 'p2345', orderNumber: 's/vijay/02/4-24/122' },
-    { date: '12-05-2024', customerName: 'Sneha', customercode: 'p6789', orderNumber: 's/vijay/08/6-24/066' },
-    { date: '05-12-2024', customerName: 'Aditya', customercode: 'p3456', orderNumber: 's/vijay/11/7-24/089' },
-    { date: '18-07-2024', customerName: 'Meera', customercode: 'p7890', orderNumber: 's/vijay/03/8-24/054' },
-    { date: '29-10-2024', customerName: 'Karan', customercode: 'p4567', orderNumber: 's/vijay/07/1-24/011' },
-    { date: '11-04-2024', customerName: 'Yash', customercode: 'p8901', orderNumber: 's/vijay/01/9-24/027' },
-    { date: '23-02-2024', customerName: 'Sara', customercode: 'p5678', orderNumber: 's/vijay/10/0-24/003' },
-];
+const acceptedOrder = useSelector((state:any)=> state?.outward?.acceptedOrder);
+const orderDetail = useSelector((state:any)=> state?.outward?.orderDetail);
+const dispatch = useDispatch();
+
+useEffect(()=>{
+  console.log("acccccccccccccccccccc ", acceptedOrder);
+},[acceptedOrder])
+
+
+useEffect(()=>{
+  console.log("order details    ff ", orderDetail)
+},[orderDetail])
+
+useEffect(()=>{
+  dispatch(getAcceptedItemsSalesAsync());
+},[])
 
   return (
     <View>
@@ -76,9 +73,9 @@ const acceptedItems = () => {
         />
       </View>
 
-      <View>
+      <View className='h-[90%]'>
       <FlatList
-        data={orders}
+        data={acceptedOrder?.length > 0 ? acceptedOrder : []}
         renderItem={({ item, index }) => (
           <TableRow
             item={item}

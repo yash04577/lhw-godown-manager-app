@@ -1,5 +1,5 @@
 import axios from "axios";
-import { acceptItemApiPath, assistantApiPath, basePath, outawrdSlipApiPath, outwardSlipFiltersApiPath } from "../apiRoutes";
+import { acceptItemApiPath, acceptedOrderDetailsSalesApiPath, assistantApiPath, basePath, outawrdSlipApiPath, outwardSlipFiltersApiPath } from "../apiRoutes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -53,5 +53,18 @@ export const acceptItem = async(payload:any) =>{
         return data;
     } catch (error) {
         console.log("error in accept api", error);
+    }
+}
+
+
+export const getAcceptedOrderDetailsSales = async(query:any) =>{
+    try {
+        
+        // console.log("outward query ", query)
+        const {data} = await axios.post(acceptedOrderDetailsSalesApiPath, query);
+        // console.log("outward data ", data)
+        return data
+    } catch (error) {
+        console.log("error on login api ", error)
     }
 }

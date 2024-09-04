@@ -1,5 +1,5 @@
 import axios from "axios";
-import { acceptPurchaseItemApiPath, inwardSlipApiPath, inwardSlipFiltersApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath } from "../apiRoutes";
+import { acceptPurchaseItemApiPath, basePath, inwardSlipApiPath, inwardSlipFiltersApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath } from "../apiRoutes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -43,5 +43,17 @@ export const acceptPurchaseItem = async(payload:any) =>{
         return data;
     } catch (error) {
         console.log("error in accept purchase api", error);
+    }
+}
+
+
+export const getAcceptedItemsSales = async() =>{
+    try {
+        const cookie = await getCookie();
+        const {data} = await axios.get(`${basePath}/salesOrder/getSalesOrderCustomer/V2?orderNumber=&customerId=&page=1&limit=10`, {withCredentials:true, headers:{Cookie: cookie}});
+        // console.log("outward filters", data)
+        return data
+    } catch (error) {
+        console.log("error on outward accepted api ", error)
     }
 }

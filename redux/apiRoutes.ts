@@ -11,6 +11,7 @@ export const outawrdSlipApiPath = `${basePath}/salesOrder/forGodown`;
 export const outwardSlipFiltersApiPath = `${basePath}/salesOrder/getPastOrderFilter/option/v2?customer=&salesOrder=&user=`;
 export const assistantApiPath = `${basePath}/manager/Godown/Assistant/assistant`;
 export const acceptItemApiPath = `${basePath}/salesOrder/getAccept`;
+export const acceptedOrderDetailsSalesApiPath = `${basePath}/salesOrder/getSalesOrderCustomerWithItem`
 
 
 //inward section apis

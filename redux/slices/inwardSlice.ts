@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from "../api/authApi";
-import { getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
+import { getAcceptedOrderDetailsSales, getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
 import { acceptPurchaseItem, getInwardSlipFilters, getInwarddSlip } from "../api/inwardApi";
 
 
@@ -81,6 +81,9 @@ export const acceptPurchaseItemAsync: any = createAsyncThunk(
     }
 )
 
+
+
+
 export const InwardSlice = createSlice({
     name: 'inward',
     initialState,
@@ -109,7 +112,7 @@ export const InwardSlice = createSlice({
             .addCase(acceptPurchaseItemAsync.fulfilled, (state, action) => {
                 state.status = 'completed'
                 state.refreshData = true;
-            })
+            }) 
            
     }
 
