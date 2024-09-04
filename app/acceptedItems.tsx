@@ -2,8 +2,9 @@ import { FlatList, StyleSheet, Text, TextInput, TouchableNativeFeedback, Touchab
 import React, { useEffect, useState } from 'react'
 import { MaterialIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAcceptedItemsSalesAsync, getAcceptedOrderDetailsSalesAsync } from '@/redux/slices/outwardSlice';
+import { getAcceptedItemsSalesAsync, getAcceptedOrderDetailsSalesAsync, getAcceptedOrderSalesByCustomerAsync, getAcceptedOrderSalesByCustomerFilterAsync } from '@/redux/slices/outwardSlice';
 import { useRouter } from 'expo-router';
+import { Dropdown } from 'react-native-element-dropdown';
 
 
 
@@ -49,6 +50,8 @@ const acceptedItems = () => {
 
 const acceptedOrder = useSelector((state:any)=> state?.outward?.acceptedOrder);
 const orderDetail = useSelector((state:any)=> state?.outward?.orderDetail);
+const customers = useSelector((state:any)=>state?.outward?.customer);
+const [selectedCustomer, setSelectedCustomer] = useState();
 const dispatch = useDispatch();
 
 useEffect(()=>{
@@ -64,14 +67,54 @@ useEffect(()=>{
   dispatch(getAcceptedItemsSalesAsync());
 },[])
 
+useEffect(()=>{
+  console.log("cus        ff ", customers)
+},[customers])
+
   return (
     <View>
-      <View className="w-[90%] mx-auto my-4">
-        <TextInput 
-          placeholder="Search Customer..." 
-          className="border w-full mx-auto px-2 py-1 rounded-md bg-white"
-        />
-      </View>
+       <View className="flex justify-center items-center w-[90%] mx-auto h-[50px] my-2 rounded-md px-2 bg-white">
+            <Dropdown
+              style={[]}
+              className="w-full"
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              itemTextStyle={styles.itemContainerStyle}
+              containerStyle={{ width: 300, borderRadius: 5, marginTop: 5 }}
+              data={customers?.length > 0 ? customers : []}
+              disable={false}
+              maxHeight={220}
+              search
+              labelField="name"
+              valueField="_id" // need to ask ?
+              placeholder={"Search Customers..."}
+              value={selectedCustomer}
+              onChange={(customer: any) => {
+                setSelectedCustomer(customer)
+                dispatch(getAcceptedOrderSalesByCustomerFilterAsync({customerId:customer._id}))
+              }}
+              onChangeText={(customer:any)=>{
+                dispatch(getAcceptedOrderSalesByCustomerAsync({customer:customer}));
+              }}
+              renderLeftIcon={() => {
+                return (
+                  <>
+                    {selectedCustomer != null && (
+                      <TouchableNativeFeedback
+                        onPress={() => setSelectedCustomer(null)}
+                      >
+                        <MaterialIcons
+                          name="cancel"
+                          size={20}
+                          color={"black"}
+                        />
+                      </TouchableNativeFeedback>
+                    )}
+                  </>
+                );
+              }}
+            />
+          </View>
 
       <View className='h-[90%]'>
       <FlatList

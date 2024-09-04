@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from "../api/authApi";
-import { acceptItem, getAcceptedOrderDetailsSales, getAssitant, getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
+import { acceptItem, getAcceptedOrderDetailsSales, getAcceptedOrderSalesByCustomer, getAcceptedOrderSalesByCustomerFilter, getAssitant, getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
 import { getAcceptedItemsSales } from "../api/inwardApi";
 
 
@@ -21,6 +21,7 @@ const initialState = {
     refreshData:false,
     acceptedOrder:[],
     orderDetail:{},
+    customer: [],
 }
 
 
@@ -126,6 +127,34 @@ export const getAcceptedOrderDetailsSalesAsync: any = createAsyncThunk(
 )
 
 
+export const getAcceptedOrderSalesByCustomerAsync: any = createAsyncThunk(
+    "getAcceptedOrderSalesByCustomerAsync",
+    async (query) => {
+        try {
+            const response: any = await getAcceptedOrderSalesByCustomer(query);
+            return response;
+        }
+        catch (err) {
+            console.log("error on login slice ", err)
+        }
+    }
+)
+
+
+export const getAcceptedOrderSalesByCustomerFilterAsync: any = createAsyncThunk(
+    "getAcceptedOrderSalesByCustomerFilterAsync",
+    async (query) => {
+        try {
+            const response: any = await getAcceptedOrderSalesByCustomerFilter(query);
+            return response;
+        }
+        catch (err) {
+            console.log("error on login slice ", err)
+        }
+    }
+)
+
+
 export const OutwardSlice = createSlice({
     name: 'outward',
     initialState,
@@ -174,6 +203,22 @@ export const OutwardSlice = createSlice({
             .addCase(getAcceptedOrderDetailsSalesAsync.fulfilled, (state, action) => {
                 state.status = 'completed'
                 state.orderDetail = action.payload.data
+            })
+            .addCase(getAcceptedOrderSalesByCustomerAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getAcceptedOrderSalesByCustomerAsync.fulfilled, (state, action) => {
+                state.status = 'completed'
+                state.customer = action.payload.Customer
+                console.log("oooooooooooooo ", action.payload.Customer)
+            })
+            .addCase(getAcceptedOrderSalesByCustomerFilterAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getAcceptedOrderSalesByCustomerFilterAsync.fulfilled, (state, action) => {
+                state.status = 'completed'
+                state.acceptedOrder = action?.payload?.data?.salesOrders
+                // console.log("oooooooooooooo ", action.payload.Customer)
             })
     }
 

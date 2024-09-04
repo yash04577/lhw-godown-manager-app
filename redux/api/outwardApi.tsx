@@ -68,3 +68,25 @@ export const getAcceptedOrderDetailsSales = async(query:any) =>{
         console.log("error on login api ", error)
     }
 }
+
+export const getAcceptedOrderSalesByCustomer = async({customer}:any) =>{
+    try {
+        const cookie = await getCookie();
+        const {data} = await axios.get(`${basePath}/salesOrder/getPastOrderFilter/option/v2?customer=${customer ? customer : ""}`, {withCredentials:true, headers:{Cookie: cookie}});
+        console.log("customer filters", data)
+        return data
+    } catch (error) {
+        console.log("error customer on outward api ", error)
+    }
+}
+
+export const getAcceptedOrderSalesByCustomerFilter = async({customerId}:any) =>{
+    try {
+        const cookie = await getCookie();
+        const {data} = await axios.get(`${basePath}/salesOrder/getSalesOrderCustomer/V2?orderNumber=&customerId=${customerId}&page=1&limit=10`, {withCredentials:true, headers:{Cookie: cookie}});
+        console.log("customer filters", data)
+        return data
+    } catch (error) {
+        console.log("error customer on outward api ", error)
+    }
+}
