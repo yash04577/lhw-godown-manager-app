@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from "../api/authApi";
 import { getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
 import { getInwarddSlip } from "../api/inwardApi";
-import { getEstimateSales } from "../api/estimateSalesApi";
+import { getEstimateSales, getSalesBillApi } from "../api/estimateSalesApi";
 
 
 interface LoginState {
@@ -17,7 +17,8 @@ const initialState = {
     filters: {},
     loading:false,
     filterLoading:false,
-    status: 'idle'
+    status: 'idle',
+    salesBill: [],
 }
 
 
@@ -53,6 +54,20 @@ export const getEstimateSalesAsync: any = createAsyncThunk(
     }
 )
 
+export const getSalesBillAsync: any = createAsyncThunk(
+    "getSalesBillAsync",
+    async (query) => {
+        try {
+            const response: any = await getSalesBillApi(query);
+            // console.log("query slice", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on login slice ", err)
+        }
+    }
+)
+
 // export const getOutwardSlipFiltersAsync: any = createAsyncThunk(
 //     "getOutwardSlipFiltersAsync",
 //     async (query) => {
@@ -79,6 +94,13 @@ export const EstimateSlice = createSlice({
             .addCase(getEstimateSalesAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
                 state.data = action.payload.data;
+            })
+            .addCase(getSalesBillAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getSalesBillAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                state.salesBill = action.payload.data;
             })
            
     }

@@ -1,10 +1,16 @@
+import { getSalesBillAsync } from '@/redux/slices/estimateSalesSlice';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, {useState} from 'react';
 import { FlatList, View, Text, TouchableOpacity, ScrollView, TouchableNativeFeedback, StyleSheet} from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
+import { useDispatch } from 'react-redux';
   
 
 const TableRow = ({ item, type, index }:any) => {
+
+  const dispatch = useDispatch();
+
 
     const [godownAssistantData, setGodownAssistantData] = useState([
         { name: 'Bansi', _id: '98098jkhkh' },
@@ -18,8 +24,18 @@ const TableRow = ({ item, type, index }:any) => {
       const [loading, setLoading] = useState(false);
       const [godownFilterFocus, setGodownFilterFocus] = useState(false);
 
+
+      const router = useRouter();
+
+      const handleClick = (item:any) =>{
+        dispatch(getSalesBillAsync({id: item.salesId}))
+        console.log("itemmmmmmmmmm ", item)
+        router.push("/acceptedOrderPurchase")
+      }
+
   return (
     
+<TouchableOpacity onPress={()=>handleClick(item)}>
 
 <View className={`bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto`}>
       <View className="flex-row justify-between items-center border-b border-gray-200 pb-2">
@@ -37,6 +53,7 @@ const TableRow = ({ item, type, index }:any) => {
         <Text className="text-gray-700">&#8377; {item?.total?.toFixed(0)}</Text>
       </View>
     </View>
+</TouchableOpacity>
     
   );
 };
@@ -48,7 +65,6 @@ const EstimateSalesTable = ({data, type}:any) => {
     <FlatList
       data={data}
       renderItem={({ item, index }) => <TableRow item={item} type={type} index={index} />}
-      keyExtractor={(index)=>index}
       />
       </View>
   );

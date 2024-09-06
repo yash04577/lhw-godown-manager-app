@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from "../api/authApi";
 import { getAcceptedOrderDetailsSales, getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
-import { acceptPurchaseItem, getInwardSlipFilters, getInwarddSlip } from "../api/inwardApi";
+import { acceptPurchaseItem, acceptedPurchaseOrderApi, getInwardSlipFilters, getInwarddSlip } from "../api/inwardApi";
 
 
 interface LoginState {
@@ -18,6 +18,7 @@ const initialState = {
     filterLoading:false,
     status: 'idle',
     refreshData:false,
+    acceptedOrders: [],
 }
 
 
@@ -82,6 +83,20 @@ export const acceptPurchaseItemAsync: any = createAsyncThunk(
 )
 
 
+export const acceptedPurchaseOrderAsync: any = createAsyncThunk(
+    "acceptedPurchaseOrderAsync",
+    async () => {
+        try {
+            const response: any = await acceptedPurchaseOrderApi();
+            return response;
+        }
+        catch (err) {
+            console.log("error on login slice ", err)
+        }
+    }
+)
+
+
 
 
 export const InwardSlice = createSlice({
@@ -112,6 +127,14 @@ export const InwardSlice = createSlice({
             .addCase(acceptPurchaseItemAsync.fulfilled, (state, action) => {
                 state.status = 'completed'
                 state.refreshData = true;
+            }) 
+            .addCase(acceptedPurchaseOrderAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(acceptedPurchaseOrderAsync.fulfilled, (state, action) => {
+                state.status = 'completed'
+                state.acceptedOrders = action.payload
+                console.log("accepted purchase order ", action.payload)
             }) 
            
     }
