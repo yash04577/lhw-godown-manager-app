@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getEstimatePurchase } from "../api/estimatePurchaseApi";
+import { getEstimatePurchase, getPurchaseBillApi } from "../api/estimatePurchaseApi";
 
 
 interface LoginState {
@@ -14,7 +14,8 @@ const initialState = {
     filters: {},
     loading:false,
     filterLoading:false,
-    status: 'idle'
+    status: 'idle',
+    purchaseBill:{},
 }
 
 
@@ -50,6 +51,21 @@ export const getEstimatePurchaseAsync: any = createAsyncThunk(
     }
 )
 
+
+export const getPurchaseBillAsync: any = createAsyncThunk(
+  "getPurchaseBillAsync",
+  async (query) => {
+      try {
+          const response: any = await getPurchaseBillApi(query);
+          // console.log("query slice", response)
+          return response;
+      }
+      catch (err) {
+          console.log("error on login slice ", err)
+      }
+  }
+)
+
 // export const getOutwardSlipFiltersAsync: any = createAsyncThunk(
 //     "getOutwardSlipFiltersAsync",
 //     async (query) => {
@@ -76,6 +92,14 @@ export const PurchaseSlice = createSlice({
             .addCase(getEstimatePurchaseAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
                 state.data = action.payload.data;
+            })
+            .addCase(getPurchaseBillAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getPurchaseBillAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                state.purchaseBill = action.payload.data;
+                console.log("purchase billl state ", action.payload)
             })
            
     }

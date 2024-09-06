@@ -2,23 +2,16 @@ import { StyleSheet, Text, View, FlatList, ScrollView } from "react-native";
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
-const acceptedOrderPurchase = () => {
+const acceptedOrderSales = () => {
   const salesBill = useSelector(
     (state: any) => state?.estimateSales?.salesBill
   );
 
-  useEffect(() => {
-    console.log("dataaaa milaaa ", salesBill);
-    console.log(
-      "loading milaaa ",
-      salesBill?.items[0]?.salesOrder?.loadingDetails[0]
-    );
-  }, [salesBill]);
 
   const getNetRate = (rate: any, dispatchQuantity: any, gst: any) => {
     const taxableValue = rate * dispatchQuantity;
     const netRate = taxableValue + (taxableValue * gst) / 100;
-    return netRate.toFixed(0);
+    return netRate?.toFixed(0);
   };
 
   return (
@@ -239,9 +232,9 @@ const acceptedOrderPurchase = () => {
                     <Text>Net Rate: </Text>
                     <Text className="text-gray-700">
                       {getNetRate(
-                        item?.taxableValue,
-                        item?.dispatchQuantity,
-                        item?.gst
+                        Number(item?.taxableValue),
+                        Number(item?.dispatchQuantity),
+                        Number(item?.gst)
                       )}
                     </Text>
                   </View>
@@ -266,6 +259,6 @@ const acceptedOrderPurchase = () => {
   );
 };
 
-export default acceptedOrderPurchase;
+export default acceptedOrderSales;
 
 const styles = StyleSheet.create({});

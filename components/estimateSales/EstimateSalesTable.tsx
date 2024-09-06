@@ -1,3 +1,4 @@
+import { getPurchaseBillAsync } from '@/redux/slices/estimatePurchaseSlice';
 import { getSalesBillAsync } from '@/redux/slices/estimateSalesSlice';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -28,9 +29,18 @@ const TableRow = ({ item, type, index }:any) => {
       const router = useRouter();
 
       const handleClick = (item:any) =>{
-        dispatch(getSalesBillAsync({id: item.salesId}))
-        console.log("itemmmmmmmmmm ", item)
-        router.push("/acceptedOrderPurchase")
+
+        if(type == "purchase"){
+          dispatch(getPurchaseBillAsync({id: item.purchaseId}))
+          router.push("/purchaseBill")
+        }
+        else{
+          dispatch(getSalesBillAsync({id: item.salesId}))
+          console.log("itemmmmmmmmmm ", item)
+          router.push("/acceptedOrderSales")
+        }
+
+      
       }
 
   return (

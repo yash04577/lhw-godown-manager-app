@@ -24,6 +24,7 @@ export const acceptedPurchaseOrderApiPath = `${basePath}/purchaseOrder/purchaseO
 //sales section
 export const estimateSalesApiPath = `${basePath}/sales/bill/v2`;
 export const salesBillApiPath = `${basePath}/sales/bill`;
+export const purchaseBillApiPath = `${basePath}/purchaser/pages/bill/`;
 
 
 

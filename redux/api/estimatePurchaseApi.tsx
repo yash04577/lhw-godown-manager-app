@@ -1,5 +1,5 @@
 import axios from "axios";
-import { estimatePurchaseApiPath, } from "../apiRoutes";
+import { estimatePurchaseApiPath, purchaseBillApiPath, } from "../apiRoutes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -23,6 +23,18 @@ export const getEstimatePurchase = async(query:any) =>{
         console.log("error on inward login api ", error)
     }
 }
+
+export const getPurchaseBillApi = async({id}:any) =>{
+  try {
+      
+      const {data} = await axios.get(`${purchaseBillApiPath}/${id}`);
+      // console.log("inward data ", data)
+      return data
+  } catch (error) {
+      console.log("error on inward login api ", error)
+  }
+}
+
 
 
 // export const getOutwardSlipFilters = async(query:any) =>{
