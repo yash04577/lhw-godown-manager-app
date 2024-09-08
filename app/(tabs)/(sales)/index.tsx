@@ -2,8 +2,9 @@ import Pagination from "@/components/commanComponents/Pagination";
 import EstimateSalesTable from "@/components/estimateSales/EstimateSalesTable";
 import OutwardSlipCard from "@/components/outwardSlip/OutwardSlipCard";
 import OutwardSlipTable from "@/components/outwardSlip/OutwardSlipTable";
-import { getEstimateSalesAsync } from "@/redux/slices/estimateSalesSlice";
+import { getEstimateSalesAsync, getSalesBillAsync } from "@/redux/slices/estimateSalesSlice";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   StyleSheet,
@@ -13,10 +14,49 @@ import {
   View,
   ScrollView,
   TextInput,
+  FlatList,
 } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { Dropdown } from "react-native-element-dropdown";
 import { useDispatch, useSelector } from "react-redux";
+
+const TableRow = ({ item, index }:any) => {
+
+    const dispatch = useDispatch();
+  
+        const router = useRouter();
+  
+        const handleClick = (item:any) =>{
+         
+            dispatch(getSalesBillAsync({id: item.salesId}))
+            router.push("/salesBill")
+        
+        }
+  
+    return (
+      
+  <TouchableOpacity onPress={()=>handleClick(item)}>
+  
+  <View className={`bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto`}>
+        <View className="flex-row justify-between items-center border-b border-gray-200 pb-2">
+          <Text className="text-gray-700 font-medium">{index+1}</Text>
+          <Text className="text-gray-700">{item?.godown}</Text>
+          <Text className="text-gray-700 font-medium">{item?.billNumber}</Text>
+        </View>
+        <View className="flex-row justify-between items-center mt-2">
+          <Text className="text-gray-700">{item?.customerName}</Text>
+          <Text className="text-gray-700">{ item?.salesOrderNumber}</Text>
+        </View>
+        <View className="flex-row justify-between items-center mt-2">
+          <Text className="text-gray-700">{item?.createdDate?.slice(0,10)}</Text>
+          {/* <Text className="text-gray-700">{item.status}</Text> */}
+          <Text className="text-gray-700">&#8377; {item?.total?.toFixed(0)}</Text>
+        </View>
+      </View>
+  </TouchableOpacity>
+      
+    );
+  };
 
 const estimateSales = ()=> {
   const [godownData, setGodownData] = useState([
@@ -258,56 +298,12 @@ const estimateSales = ()=> {
       {/* cards are here */}
       {/* <ScrollView> */}
       <View className="my-4 h-[75%]">
-        <EstimateSalesTable data={estimateSales} type={"sales"} />
+      <FlatList
+      data={estimateSales}
+      renderItem={({ item, index }) => <TableRow item={item} index={index} />}
+      />
       </View>
 
-      {/* pagination starts here */}
-      <View className="w-[90%] mx-auto flex flex-row justify-between">
-        <View className="w-[150px]">
-          <Pagination />
-        </View>
-        
-        <View className="w-[150px]">
-        <Dropdown
-              className="flex-row justify-center items-center bg-white rounded-full px-4 py-2 border text-lg text-blue-700 font-semibold mx-2"
-              style={[]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              itemTextStyle={styles.itemContainerStyle}
-              containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
-              data={godownData}
-              disable={loading}
-              maxHeight={220}
-              labelField="godownName"
-              valueField="_id" // need to ask ?
-              placeholder={"Limit 10"}
-              value={selectedGodown}
-              // onFocus={() => setIsFocus2(true)}
-              // onBlur={() => setIsFocus2(false)}
-              onChange={(godown: any) => {
-                setGodownFilterFocus(!godownFilterFocus);
-                setSelectedGodown(godown);
-              }}
-              renderLeftIcon={() => {
-                return (
-                  <>
-                    {selectedGodown != "" && (
-                      <TouchableNativeFeedback
-                        onPress={() => setSelectedGodown("")}
-                      >
-                        <MaterialIcons
-                          name="cancel"
-                          size={20}
-                          color={"black"}
-                        />
-                      </TouchableNativeFeedback>
-                    )}
-                  </>
-                );
-              }}
-            />
-        </View>
-      </View>
       {/* </ScrollView> */}
     </View>
   );

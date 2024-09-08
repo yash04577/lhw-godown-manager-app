@@ -23,9 +23,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="inwardSlip"
+        name="(inward)"
         options={{
-          title: 'Inward Slip',
+          title: 'Inward',
           tabBarIcon: ({ color, focused }) => (
             <View style={{ transform: [{ rotate: '180deg' }] }}>
             <MaterialIcons name="arrow-outward" size={24} color={color} />
@@ -34,18 +34,18 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="estimateSales"
+        name="(sales)"
         options={{
-          title: 'Estimate Sales',
+          title: 'Sales',
           tabBarIcon: ({ color, focused }) => (
             <MaterialIcons name="attach-money" size={24} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="estimatePurchase"
+        name="(purchase)"
         options={{
-          title: 'Estimate Purchase',
+          title: 'Purchase',
           tabBarIcon: ({ color, focused }) => (
             <MaterialIcons name="money-off" size={24} color={color} />
           ),

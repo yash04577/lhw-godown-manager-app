@@ -1,9 +1,13 @@
 import Pagination from "@/components/commanComponents/Pagination";
-import EstimateSalesTable from "@/components/estimateSales/EstimateSalesTable";
 import OutwardSlipCard from "@/components/outwardSlip/OutwardSlipCard";
 import OutwardSlipTable from "@/components/outwardSlip/OutwardSlipTable";
-import { getEstimatePurchaseAsync } from "@/redux/slices/estimatePurchaseSlice";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import {
+  getInwardSlipAsync,
+  getInwardSlipFiltersAsync,
+} from "@/redux/slices/inwardSlice";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   StyleSheet,
@@ -18,64 +22,62 @@ import DatePicker from "react-native-date-picker";
 import { Dropdown } from "react-native-element-dropdown";
 import { useDispatch, useSelector } from "react-redux";
 
-const estimatePurchase = ()=> {
-  const [godownData, setGodownData] = useState([
-    {
-      _id: "65dc15c87d442240671928e6",
-      godownName: "virtual godown",
-    },
-    {
-      _id: "658fc1b672dd0a9107005aa9",
-      godownName: "Teen paani godown",
-    },
-    {
-      _id: "658a90b26c98a5c5a0de53b1",
-      godownName: "galla mandiii",
-    },
-    {
-      _id: "658a51342810a2d1d05f8082",
-      godownName: "sidcul godown",
-    },
-    {
-      _id: "6586aecb69943d8ed6a7d2c8",
-      godownName: "BYPASS ROAD",
-    },
-  ]);
+const inwardSlip = () => {
+  const dispatch = useDispatch();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-  const [selectedGodown, setSelectedGodown] = useState("");
   const [godownFilterFocus, setGodownFilterFocus] = useState(false);
   const [dateModalOpen, setDateModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<String>("");
-  const purchaseBills = useSelector((state:any)=>state?.purchase?.data)
+  const inwardSlips = useSelector((state: any) => state?.inward?.data);
 
-  const dispatch = useDispatch();
+  const [selectedGodown, setSelectedGodown] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
+  const [date, setDate] = useState(new Date(Date.now()));
+  const filters = useSelector((state: any) => state?.inward?.filters);
+  const refreshData = useSelector((state: any) => state?.inward?.refreshData);
+
+  const [filterStatus, setFilterStatus] = useState([
+    { id: 1, value: "pending" },
+    { id: 2, value: "accepted" },
+    { id: 3, value: "scanned" },
+    { id: 4, value: "loading" },
+    { id: 5, value: "verified" },
+  ]);
 
   const formatDate = (date: Date): string => {
     return date.toISOString().substring(0, 10);
   };
 
-  const handleDateChange = (date: any) => {
-    try {
-      if (date != null) {
-        // console.log("if called here")
-        setSelectedDate(formatDate(date));
-      } else {
-        setSelectedDate("");
-      }
-    } catch (error) {
-      console.log("error on date change on past history", error);
-    }
-  };
+  const handleDateChange = (event:any, selectedDate:any) => {
 
-  useEffect(()=>{
-    dispatch(getEstimatePurchaseAsync({page:1, limit:10, customer:"", godownId:""}));
-  },[])
+
+    if (selectedDate) {
+        // Adjust for local time
+        const offsetDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
+        setDate(offsetDate)
+    }
+
+    setDateModalOpen(false)
+    let formattedDate = formatDate(date);
+    dispatch(getInwardSlipAsync({limit:10, page:1, date:formattedDate}))
+};
+
+  useEffect(() => {
+    dispatch(getInwardSlipAsync({ limit: 10, page: 1 }));
+  }, [refreshData]);
+
+  useEffect(() => {
+    dispatch(getInwardSlipFiltersAsync());
+  }, []);
+
 
 
   return (
     <View className="flex-1 h-screen mt-2">
-
       {/* //filters are here */}
       <View className="w-full flex justify-center items-center gap-2">
         <ScrollView
@@ -83,32 +85,30 @@ const estimatePurchase = ()=> {
           showsHorizontalScrollIndicator={false}
           className="flex flex-row gap-2"
         >
-          <View className="border rounded-md flex justify-center items-center px-2 bg-white">
+          {/* <View className="border rounded-md flex justify-center items-center px-2 bg-white">
             <Dropdown
               style={[]}
               placeholderStyle={styles.placeholderStyle}
               selectedTextStyle={styles.selectedTextStyle}
               itemTextStyle={styles.itemContainerStyle}
               containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
-              data={godownData}
+              data={filters?.Godown?.length > 0 ? filters.Godown : []}
               disable={loading}
               maxHeight={220}
               labelField="godownName"
               valueField="_id" // need to ask ?
               placeholder={"Godown"}
               value={selectedGodown}
-              // onFocus={() => setIsFocus2(true)}
-              // onBlur={() => setIsFocus2(false)}
               onChange={(godown: any) => {
-                setGodownFilterFocus(!godownFilterFocus);
                 setSelectedGodown(godown);
+                dispatch(getInwardSlipAsync({limit:10, page:1, }))
               }}
               renderLeftIcon={() => {
                 return (
                   <>
-                    {selectedGodown != "" && (
+                    {selectedGodown != null && (
                       <TouchableNativeFeedback
-                        onPress={() => setSelectedGodown("")}
+                        onPress={() => setSelectedGodown(null)}
                       >
                         <MaterialIcons
                           name="cancel"
@@ -121,7 +121,7 @@ const estimatePurchase = ()=> {
                 );
               }}
             />
-          </View>
+          </View> */}
           <View className="border rounded-md flex justify-center items-center px-2 bg-white">
             <Dropdown
               style={[]}
@@ -129,25 +129,31 @@ const estimatePurchase = ()=> {
               selectedTextStyle={styles.selectedTextStyle}
               itemTextStyle={styles.itemContainerStyle}
               containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
-              data={godownData}
-              disable={loading}
+              data={
+                filters?.PurchaseOrder?.length > 0 ? filters.PurchaseOrder : []
+              }
               maxHeight={220}
-              labelField="godownName"
+              search
+              labelField="orderNumber"
               valueField="_id" // need to ask ?
-              placeholder={"Godown"}
-              value={selectedGodown}
-              // onFocus={() => setIsFocus2(true)}
-              // onBlur={() => setIsFocus2(false)}
-              onChange={(godown: any) => {
-                setGodownFilterFocus(!godownFilterFocus);
-                setSelectedGodown(godown);
+              placeholder={"OrderNumber"}
+              value={selectedOrderNumber}
+              onChange={(orderNumber: any) => {
+                setSelectedOrderNumber(orderNumber);
+                dispatch(
+                  getInwardSlipAsync({
+                    limit: 10,
+                    page: 1,
+                    orderNumber: orderNumber.orderNumber,
+                  })
+                );
               }}
               renderLeftIcon={() => {
                 return (
                   <>
-                    {selectedGodown != "" && (
+                    {selectedOrderNumber != null && (
                       <TouchableNativeFeedback
-                        onPress={() => setSelectedGodown("")}
+                        onPress={() => setSelectedGodown(null)}
                       >
                         <MaterialIcons
                           name="cancel"
@@ -164,43 +170,33 @@ const estimatePurchase = ()=> {
           <View className="">
             <TouchableOpacity onPress={() => setDateModalOpen(true)}>
               <View
-                className={`flex-row py-2 rounded-md border items-center justify-between px-2 ${
-                  selectedDate === "" ? "bg-white" : "bg-primary"
-                }`}
+                className={`flex-row py-2 rounded-md border items-center justify-between px-2`}
                 style={{ borderWidth: 1 }}
               >
-                {selectedDate !== "" && (
-                  <TouchableNativeFeedback onPress={() => handleDateChange("")}>
+                {/* {date !== "" && (
+                  <TouchableNativeFeedback onPress={() => setDate(new Date(Date.now()))}>
                     <MaterialIcons name="cancel" size={20} color={"white"} />
                   </TouchableNativeFeedback>
-                )}
+                )} */}
                 <Text
-                  className={`${
-                    selectedDate === "" ? " text-[#004EBA]" : " text-white"
-                  } font-semibold`}
                 >
-                  {selectedDate ? (selectedDate as String) : "Date"}
+                  {date ? (formatDate(date) as string) : "Date"}
                 </Text>
                 <MaterialIcons
                   name="date-range"
                   size={20}
-                  color={selectedDate ? "white" : "black"}
+                  color={"black"}
                 />
               </View>
             </TouchableOpacity>
-            <DatePicker
-              modal
-              open={dateModalOpen}
-              mode="date"
-              date={new Date()}
-              onConfirm={(date: any) => {
-                handleDateChange(date);
-                setDateModalOpen(false);
-              }}
-              onCancel={() => {
-                setDateModalOpen(false);
-              }}
-            />
+            {dateModalOpen && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            is24Hour={false}
+            onChange={handleDateChange}
+        />
+      )}
           </View>
 
           <View className="border rounded-md flex justify-center items-center px-2 bg-white">
@@ -210,25 +206,29 @@ const estimatePurchase = ()=> {
               selectedTextStyle={styles.selectedTextStyle}
               itemTextStyle={styles.itemContainerStyle}
               containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
-              data={godownData}
+              data={filterStatus}
               disable={loading}
               maxHeight={220}
-              labelField="godownName"
-              valueField="_id" // need to ask ?
-              placeholder={"Status"}
-              value={selectedGodown}
-              // onFocus={() => setIsFocus2(true)}
-              // onBlur={() => setIsFocus2(false)}
-              onChange={(godown: any) => {
-                setGodownFilterFocus(!godownFilterFocus);
-                setSelectedGodown(godown);
+              labelField="value"
+              valueField="value" // need to ask ?
+              placeholder={"Select Status"}
+              value={selectedStatus}
+              onChange={(status: any) => {
+                setSelectedStatus(status);
+                dispatch(
+                  getInwardSlipAsync({
+                    limit: 10,
+                    page: 1,
+                    status: status.value,
+                  })
+                );
               }}
               renderLeftIcon={() => {
                 return (
                   <>
-                    {selectedGodown != "" && (
+                    {selectedStatus != null && (
                       <TouchableNativeFeedback
-                        onPress={() => setSelectedGodown("")}
+                        onPress={() => setSelectedStatus(null)}
                       >
                         <MaterialIcons
                           name="cancel"
@@ -243,55 +243,38 @@ const estimatePurchase = ()=> {
             />
           </View>
         </ScrollView>
-        <View className="w-[90%] flex flex-row">
-        <TextInput 
-          placeholder="Search Customer..." 
-          className="border w-[65%] mx-auto px-2 py-1 rounded-md bg-white"
-        />
-        <TouchableOpacity className="bg-[#283093] flex justify-center items-center rounded-md"><Text className="text-white px-4 font-medium">Add Purchase</Text></TouchableOpacity>
-      </View>
-      </View>
-
-
-      {/* cards are here */}
-      {/* <ScrollView> */}
-      <View className="my-4 h-[75%]">
-        <EstimateSalesTable data={purchaseBills} type={"purchase"}/>
-      </View>
-
-      {/* pagination starts here */}
-      <View className="w-[90%] mx-auto flex flex-row justify-between">
-        <View className="w-[150px]">
-          <Pagination />
-        </View>
-        
-        <View className="w-[150px]">
-        <Dropdown
-              className="flex-row justify-center items-center bg-white rounded-full px-4 py-2 border text-lg text-blue-700 font-semibold mx-2"
-              style={[]}
+        <View className="w-[90%] flex flex-row gap-2">
+          <View className="border flex justify-center items-center w-[60%] rounded-md px-2 bg-white">
+            <Dropdown
+              style={{width:"100%"}}
               placeholderStyle={styles.placeholderStyle}
               selectedTextStyle={styles.selectedTextStyle}
               itemTextStyle={styles.itemContainerStyle}
-              containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
-              data={godownData}
-              disable={loading}
+              containerStyle={{ width: 300, borderRadius: 5, marginTop: 5 }}
+              data={filters?.Customer?.length > 0 ? filters.Customer : []}
+              disable={false}
               maxHeight={220}
-              labelField="godownName"
+              search
+              labelField="customerName"
               valueField="_id" // need to ask ?
-              placeholder={"Limit 10"}
-              value={selectedGodown}
-              // onFocus={() => setIsFocus2(true)}
-              // onBlur={() => setIsFocus2(false)}
-              onChange={(godown: any) => {
-                setGodownFilterFocus(!godownFilterFocus);
-                setSelectedGodown(godown);
+              placeholder={"Search Customers..."}
+              value={selectedCustomer}
+              onChange={(customer: any) => {
+                setSelectedCustomer(customer);
+                dispatch(
+                  getInwardSlipAsync({
+                    limit: 10,
+                    page: 1,
+                    customerId: customer._id,
+                  })
+                );
               }}
               renderLeftIcon={() => {
                 return (
                   <>
-                    {selectedGodown != "" && (
+                    {selectedCustomer != null && (
                       <TouchableNativeFeedback
-                        onPress={() => setSelectedGodown("")}
+                        onPress={() => setSelectedCustomer(null)}
                       >
                         <MaterialIcons
                           name="cancel"
@@ -304,12 +287,78 @@ const estimatePurchase = ()=> {
                 );
               }}
             />
+          </View>
+          <View>
+            <TouchableOpacity
+              className="bg-green-400 rounded-md p-3"
+              onPress={() => router.push("/acceptedOrders")}
+            >
+              <Text className="text-black font-medium">Accepted Items</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
+
+      {/* cards are here */}
+      {/* <ScrollView> */}
+      <View className="my-4 h-[85%]">
+        <OutwardSlipTable
+          data={inwardSlips}
+          setSelectedCustomer={setSelectedCustomer}
+          setSelectedStatus={setSelectedStatus}
+          setSelectedOrderNumber={setSelectedOrderNumber}
+          setDate={setDate}
+          type={"inward"}
+        />
+      </View>
+
+      {/* pagination starts here */}
+      {/* <View className="w-[90%] mx-auto flex flex-row justify-between">
+        <View className="w-[150px]">
+          <Pagination />
+        </View>
+
+        <View className="w-[150px]">
+          <Dropdown
+            className="flex-row justify-center items-center bg-white rounded-full px-4 py-2 border text-lg text-blue-700 font-semibold mx-2"
+            style={[]}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            itemTextStyle={styles.itemContainerStyle}
+            containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
+            data={[]}
+            disable={loading}
+            maxHeight={220}
+            labelField="godownName"
+            valueField="_id" // need to ask ?
+            placeholder={"Limit 10"}
+            value={selectedGodown}
+            // onFocus={() => setIsFocus2(true)}
+            // onBlur={() => setIsFocus2(false)}
+            onChange={(godown: any) => {
+              setGodownFilterFocus(!godownFilterFocus);
+              setSelectedGodown(godown);
+            }}
+            renderLeftIcon={() => {
+              return (
+                <>
+                  {selectedGodown != "" && (
+                    <TouchableNativeFeedback
+                      onPress={() => setSelectedGodown("")}
+                    >
+                      <MaterialIcons name="cancel" size={20} color={"black"} />
+                    </TouchableNativeFeedback>
+                  )}
+                </>
+              );
+            }}
+          />
+        </View>
+      </View> */}
       {/* </ScrollView> */}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   titleContainer: {
@@ -402,5 +451,4 @@ const styles = StyleSheet.create({
   },
 });
 
-
-export default estimatePurchase;
+export default inwardSlip;
