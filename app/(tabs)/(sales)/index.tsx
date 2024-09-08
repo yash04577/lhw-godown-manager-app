@@ -297,7 +297,7 @@ const estimateSales = ()=> {
 
       {/* cards are here */}
       {/* <ScrollView> */}
-      <View className="my-4 h-[75%]">
+      <View className="my-4 h-[85%]">
       <FlatList
       data={estimateSales}
       renderItem={({ item, index }) => <TableRow item={item} index={index} />}

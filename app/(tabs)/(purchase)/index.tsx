@@ -301,7 +301,7 @@ const estimatePurchase = ()=> {
 
       {/* cards are here */}
       {/* <ScrollView> */}
-      <View className="my-4 h-[75%]">
+      <View className="my-4 h-[85%]">
         <EstimateSalesTable data={purchaseBills} type={"purchase"}/>
         <FlatList
       data={purchaseBills}

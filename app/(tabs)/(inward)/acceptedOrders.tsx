@@ -2,113 +2,117 @@ import { FlatList, StyleSheet, Text, TextInput, TouchableNativeFeedback, Touchab
 import React, { useEffect, useState } from 'react'
 import { MaterialIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAcceptedItemsSalesAsync, getAcceptedOrderDetailsSalesAsync, getAcceptedOrderSalesByCustomerAsync, getAcceptedOrderSalesByCustomerFilterAsync } from '@/redux/slices/outwardSlice';
+import { acceptedOrderDetailsPurchaseAsync, acceptedPurchaseOrderAsync } from '@/redux/slices/inwardSlice';
 import { useRouter } from 'expo-router';
-import { Dropdown } from 'react-native-element-dropdown';
-
-
 
 const TableRow = ({ item, index, type, assistant }: any) => {
-  const dispatch = useDispatch();
   const [selectedAssistant, setSelectedAssitant] = useState();
   const [loading, setLoading] = useState(false);
   const [godownFilterFocus, setGodownFilterFocus] = useState(false);
+  const dispatch = useDispatch();
   const router = useRouter();
 
+  const handleClick = (orderNumber:any, customerId:any) =>{
 
-  const handleClick = () =>{
-    dispatch(getAcceptedOrderDetailsSalesAsync({customerId:item?.customer?._id, orderNumber:item?.orderNumber}))
-    router.push("/orderDetail");
+    dispatch(acceptedOrderDetailsPurchaseAsync({orderNumber:orderNumber, customerId:customerId}))
+    router.push("/orderDetail")
   }
+  // const router = useRouter();
+
+  // const handleAccept = async(item:any) =>{
+  //   try {
+
+  //     const payload = {
+  //       elementId: item.elementId,
+  //       loadingPerson: selectedAssistant?._id,
+  //       orderId: item.orderId,
+  //       status: "accepted",
+  //     }
+
+  //     dispatch(acceptItemAsync(payload));
+      
+  //   } catch (error) {
+  //     console.log("my error ", error)
+  //   }
+  // }
+  
 
   return (
-      <TouchableOpacity
-      className="rounded-md"
-        onPress={handleClick}
-      >
-    <View className="bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto">
-      <View className="flex-row justify-between items-center border-b border-gray-200 pb-2">
-        <Text className="text-gray-700 font-medium">{index + 1}</Text>
-        <Text className="text-gray-700 font-medium">
-          {item.orderNumber}
-        </Text>
-      </View>
-      <View className="flex-row justify-between items-center mt-2">
-        <Text className="text-gray-700">{item?.customer?.customerName} {item?.customer?.customercode}</Text>
-        <Text className="text-gray-700">{item.date}</Text>
+
+    item.orders.map((order: any, orderIndex: any) => (
       
-      </View>
-     
-     
-        
-    </View>
-      </TouchableOpacity>
+
+<TouchableOpacity
+className="rounded-md"
+  onPress={() => handleClick(order?.orderNumber, item?.customer?._id)}
+>
+<View className="bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto">
+<View className="flex-row justify-between items-center border-b border-gray-200 pb-2">
+  <Text className="text-gray-700 font-medium">{index + 1}</Text>
+  <Text className="text-gray-700">{order?.updatedAt?.slice(0, 10)}</Text>
+  <Text className="text-gray-700 font-medium">
+    {order?.orderNumber}
+  </Text>
+</View>
+<View className="flex-row justify-between items-center mt-2">
+  <Text className="text-gray-700">{item?.customer?.customerName} {item?.customer?.customerCode}</Text>
+</View>
+
+
+  
+</View>
+</TouchableOpacity>
+  ))
+
+      
   );
 };
 
-const acceptedItems = () => {
+const acceptedItemsPurchase = () => {
 
-const acceptedOrder = useSelector((state:any)=> state?.outward?.acceptedOrder);
-const orderDetail = useSelector((state:any)=> state?.outward?.orderDetail);
-const customers = useSelector((state:any)=>state?.outward?.customer);
-const [selectedCustomer, setSelectedCustomer] = useState();
-const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
+  useEffect(()=>{
+    dispatch(acceptedPurchaseOrderAsync());
+  },[])
 
+  const data = useSelector((state:any)=>state?.inward?.acceptedOrders);
+  const PurchaseslipsDataByCustomer = data?.data
+  const [searchQuery, setSearchQuery] = useState('');
+  const status = useSelector((state:any)=>state?.inward?.status)
 
-useEffect(()=>{
-  dispatch(getAcceptedItemsSalesAsync());
-},[])
+  const filteredData = PurchaseslipsDataByCustomer && PurchaseslipsDataByCustomer.length > 0 && PurchaseslipsDataByCustomer?.filter((element: any) => {
+    const customerName = element?.customer?.customerName?.toLowerCase();
+    const customerCode = element?.customer?.customerCode?.toLowerCase();
+    const orderNumber = element?.orders?.map((order: any) => order?.orderNumber?.toLowerCase());
+    const query = searchQuery?.toLowerCase();
+
+    return (
+        (customerName?.includes(query) || customerCode?.includes(query) || orderNumber?.includes(query))
+    );
+});
 
 
   return (
-    <View>
-       <View className="flex justify-center items-center w-[90%] mx-auto h-[50px] my-2 rounded-md px-2 bg-white">
-            <Dropdown
-              style={[]}
-              className="w-full"
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              itemTextStyle={styles.itemContainerStyle}
-              containerStyle={{ width: 300, borderRadius: 5, marginTop: 5 }}
-              data={customers?.length > 0 ? customers : []}
-              disable={false}
-              maxHeight={220}
-              search
-              labelField="name"
-              valueField="_id" // need to ask ?
-              placeholder={"Search Customers..."}
-              value={selectedCustomer}
-              onChange={(customer: any) => {
-                setSelectedCustomer(customer)
-                dispatch(getAcceptedOrderSalesByCustomerFilterAsync({customerId:customer._id}))
-              }}
-              onChangeText={(customer:any)=>{
-                dispatch(getAcceptedOrderSalesByCustomerAsync({customer:customer}));
-              }}
-              renderLeftIcon={() => {
-                return (
-                  <>
-                    {selectedCustomer != null && (
-                      <TouchableNativeFeedback
-                        onPress={() => setSelectedCustomer(null)}
-                      >
-                        <MaterialIcons
-                          name="cancel"
-                          size={20}
-                          color={"black"}
-                        />
-                      </TouchableNativeFeedback>
-                    )}
-                  </>
-                );
-              }}
-            />
-          </View>
+    
 
-      <View className='h-[90%]'>
+    status == "loading" ? <View className="w-screen h-screen flex flex-row justify-center items-center">
+    <Text>Loading...</Text>
+  </View>
+
+  :
+
+    <View>
+      <View className="w-[90%] mx-auto my-4">
+        <TextInput 
+          placeholder="Search Customer..." 
+          className="border w-full mx-auto px-2 py-1 rounded-md bg-white"
+        />
+      </View>
+
+      <View>
       <FlatList
-        data={acceptedOrder?.length > 0 ? acceptedOrder : []}
+        data={filteredData && filteredData.length > 0 ? filteredData : [] }
         renderItem={({ item, index }) => (
           <TableRow
             item={item}
@@ -215,4 +219,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default acceptedItems;
+export default acceptedItemsPurchase;

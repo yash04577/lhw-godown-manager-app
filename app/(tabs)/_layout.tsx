@@ -16,7 +16,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Outward Slip',
+          title: 'Outward',
           tabBarIcon: ({ color, focused }) => (
             <MaterialIcons name="arrow-outward" size={24} color={color} />
           ),
