@@ -36,7 +36,6 @@ const TableRow = ({ item, type, index }:any) => {
         }
         else{
           dispatch(getSalesBillAsync({id: item.salesId}))
-          console.log("itemmmmmmmmmm ", item)
           router.push("/acceptedOrderSales")
         }
 

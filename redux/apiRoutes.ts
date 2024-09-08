@@ -19,6 +19,7 @@ export const inwardSlipApiPath = `${basePath}/purchaseOrder/all/purchaseOrderSli
 export const inwardSlipFiltersApiPath = `${basePath}/salesOrder/getPastOrderFilter/PurchaseOrderOption`;
 export const acceptPurchaseItemApiPath = `${basePath}/purchaseOrder/accpet/Slip`;
 export const acceptedPurchaseOrderApiPath = `${basePath}/purchaseOrder/getPurchaseOrderCustomer`;
+export const acceptedOrderDetailsPurchaseApiPath = `${basePath}/purchaseOrder/getPurchaseOrderCustomerWithItem`;
 
 
 //sales section

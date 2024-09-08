@@ -104,7 +104,7 @@ export const getAcceptedItemsSalesAsync: any = createAsyncThunk(
     async (payload) => {
         try {
             const response: any = await getAcceptedItemsSales();
-            console.log("items mile ", response);
+            // console.log("items mile ", response);
             return response;
         } catch (error) {
             console.log("error on get accept item slice ", error)
@@ -210,7 +210,7 @@ export const OutwardSlice = createSlice({
             .addCase(getAcceptedOrderSalesByCustomerAsync.fulfilled, (state, action) => {
                 state.status = 'completed'
                 state.customer = action.payload.Customer
-                console.log("oooooooooooooo ", action.payload.Customer)
+                // console.log("oooooooooooooo ", action.payload.Customer)
             })
             .addCase(getAcceptedOrderSalesByCustomerFilterAsync.pending, (state) => {
                 state.status = 'loading'

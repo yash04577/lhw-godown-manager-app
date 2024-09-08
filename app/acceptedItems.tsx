@@ -54,22 +54,12 @@ const customers = useSelector((state:any)=>state?.outward?.customer);
 const [selectedCustomer, setSelectedCustomer] = useState();
 const dispatch = useDispatch();
 
-useEffect(()=>{
-  console.log("acccccccccccccccccccc ", acceptedOrder);
-},[acceptedOrder])
 
-
-useEffect(()=>{
-  console.log("order details    ff ", orderDetail)
-},[orderDetail])
 
 useEffect(()=>{
   dispatch(getAcceptedItemsSalesAsync());
 },[])
 
-useEffect(()=>{
-  console.log("cus        ff ", customers)
-},[customers])
 
   return (
     <View>

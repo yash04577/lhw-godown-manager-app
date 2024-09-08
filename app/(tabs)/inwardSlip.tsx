@@ -74,9 +74,7 @@ const inwardSlip = () => {
     dispatch(getInwardSlipFiltersAsync());
   }, []);
 
-  useEffect(() => {
-    console.log("filters fetched ", filters);
-  }, [filters]);
+
 
   return (
     <View className="flex-1 h-screen mt-2">

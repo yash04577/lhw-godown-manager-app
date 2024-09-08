@@ -8,12 +8,6 @@ const purchaseBill = () => {
   );
 
   const status = useSelector((state:any)=>state?.purchase?.status);
-
-
-  useEffect(()=>{
-    console.log("ye raha purchase bill ", purchaseBill)
-},[purchaseBill])
-
   const getNetRate = (rate: any, dispatchQuantity: any, gst: any) => {
 
     try {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { acceptPurchaseItemApiPath, acceptedPurchaseOrderApiPath, basePath, inwardSlipApiPath, inwardSlipFiltersApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath } from "../apiRoutes";
+import { acceptPurchaseItemApiPath, acceptedOrderDetailsPurchaseApiPath, acceptedPurchaseOrderApiPath, basePath, inwardSlipApiPath, inwardSlipFiltersApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath } from "../apiRoutes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -17,7 +17,7 @@ export const getInwarddSlip = async(query:any) =>{
     try {
         
         const {data} = await axios.post(inwardSlipApiPath, query);
-        console.log("inward dataaaaa ", data)
+        // console.log("inward dataaaaa ", data)
         return data
     } catch (error) {
         console.log("error on inward login api ", error)
@@ -28,7 +28,7 @@ export const getInwarddSlip = async(query:any) =>{
 export const getInwardSlipFilters = async() =>{
     try {
         const {data} = await axios.get(inwardSlipFiltersApiPath);
-        console.log("inward filters", data)
+        // console.log("inward filters", data)
         return data
     } catch (error) {
         console.log("error on outward api ", error)
@@ -63,9 +63,20 @@ export const acceptedPurchaseOrderApi = async() =>{
     try {
         const cookie = await getCookie();
         const {data} = await axios.get(acceptedPurchaseOrderApiPath, {withCredentials:true, headers:{Cookie: cookie}});
-        console.log("ye h datataaaa ", data);
+        // console.log("ye h datataaaa ", data);
         return data
     } catch (error) {
         console.log("error on accepted purchase api ", error)
+    }
+}
+
+
+export const acceptedOrderDetailsPurchaseApi = async(payload:any) =>{
+    try {
+        const {data} = await axios.post(acceptedOrderDetailsPurchaseApiPath, payload);
+        // console.log("item accepted api", data);
+        return data;
+    } catch (error) {
+        console.log("error in accept purchase api", error);
     }
 }

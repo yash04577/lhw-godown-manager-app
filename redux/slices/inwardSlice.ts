@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from "../api/authApi";
 import { getAcceptedOrderDetailsSales, getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
-import { acceptPurchaseItem, acceptedPurchaseOrderApi, getInwardSlipFilters, getInwarddSlip } from "../api/inwardApi";
+import { acceptPurchaseItem, acceptedOrderDetailsPurchaseApi, acceptedPurchaseOrderApi, getInwardSlipFilters, getInwarddSlip } from "../api/inwardApi";
 
 
 interface LoginState {
@@ -19,6 +19,7 @@ const initialState = {
     status: 'idle',
     refreshData:false,
     acceptedOrders: [],
+    orderDetail: {},
 }
 
 
@@ -59,7 +60,7 @@ export const getInwardSlipFiltersAsync: any = createAsyncThunk(
     async () => {
         try {
             const response: any = await getInwardSlipFilters();
-            console.log("inward filter slice", response)
+            // console.log("inward filter slice", response)
             return response;
         }
         catch (err) {
@@ -88,6 +89,20 @@ export const acceptedPurchaseOrderAsync: any = createAsyncThunk(
     async () => {
         try {
             const response: any = await acceptedPurchaseOrderApi();
+            return response;
+        }
+        catch (err) {
+            console.log("error on accepted purchase slice ", err)
+        }
+    }
+)
+
+
+export const acceptedOrderDetailsPurchaseAsync: any = createAsyncThunk(
+    "acceptedOrderDetailsPurchaseAsync",
+    async (payload:any) => {
+        try {
+            const response: any = await acceptedOrderDetailsPurchaseApi(payload);
             return response;
         }
         catch (err) {
@@ -134,7 +149,15 @@ export const InwardSlice = createSlice({
             .addCase(acceptedPurchaseOrderAsync.fulfilled, (state, action) => {
                 state.status = 'completed'
                 state.acceptedOrders = action.payload
-                console.log("accepted purchase order ", action.payload)
+                // console.log("accepted purchase order ", action.payload)
+            }) 
+            .addCase(acceptedOrderDetailsPurchaseAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(acceptedOrderDetailsPurchaseAsync.fulfilled, (state, action) => {
+                state.status = 'completed'
+                state.orderDetail = action.payload
+                // console.log("accepted purchase order ", action.payload)
             }) 
            
     }

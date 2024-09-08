@@ -32,7 +32,6 @@ const TableRow = ({ item, index, type, assistant }: any) => {
   const handleAccept = async (item: any) => {
     try {
       if (type == "inward") {
-        console.log("item purchase ", item);
         dispatch(
           acceptPurchaseItemAsync({
             elementId: item.elementId,
