@@ -82,6 +82,8 @@ const estimateSales = ()=> {
     },
   ]);
 
+  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [selectedGodown, setSelectedGodown] = useState("");
   const [godownFilterFocus, setGodownFilterFocus] = useState(false);
@@ -290,7 +292,7 @@ const estimateSales = ()=> {
           placeholder="Search Customer..." 
           className="border w-[70%] mx-auto px-2 py-1 rounded-md bg-white"
         />
-        <TouchableOpacity className="bg-[#283093] flex justify-center items-center rounded-md"><Text className="text-white px-4 font-medium">Add Sales</Text></TouchableOpacity>
+        <TouchableOpacity onPress={()=> router.push("/customerSales")} className="bg-[#283093] flex justify-center items-center rounded-md"><Text className="text-white px-4 font-medium">Add Sales</Text></TouchableOpacity>
       </View>
       </View>
 

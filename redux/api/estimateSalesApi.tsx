@@ -1,5 +1,5 @@
 import axios from "axios";
-import { estimateSalesApiPath, inwardSlipApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath, salesBillApiPath } from "../apiRoutes";
+import { basePath, estimateSalesApiPath, inwardSlipApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath, salesBillApiPath } from "../apiRoutes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -33,6 +33,29 @@ export const getSalesBillApi = async({id}:any) =>{
         return data
     } catch (error) {
         console.log("error on inward login api ", error)
+    }
+}
+
+export const getCustomersForSalesApi = async({query}:any) =>{
+    try {
+        
+        const {data} = await axios.get(`${basePath}/sales/pages/customer/getAllCustomerForSales/v2?page=1&limit=10&search=${query}`);
+        // console.log("inward data ", data)
+        return data
+    } catch (error) {
+        console.log("error on customer api ", error)
+    }
+}
+
+
+export const getCustomersOrdersForSalesApi = async({customerId}:any) =>{
+    try {
+        
+        const {data} = await axios.get(`${basePath}/salesOrder/byCustomer/complete/${customerId}`);
+        // console.log("inward data ", data)
+        return data
+    } catch (error) {
+        console.log("error on customer api ", error)
     }
 }
 
