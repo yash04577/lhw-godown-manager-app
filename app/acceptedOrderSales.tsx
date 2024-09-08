@@ -7,15 +7,33 @@ const acceptedOrderSales = () => {
     (state: any) => state?.estimateSales?.salesBill
   );
 
+  const status = useSelector((state:any)=>state?.estimateSales?.status);
+
 
   const getNetRate = (rate: any, dispatchQuantity: any, gst: any) => {
-    const taxableValue = rate * dispatchQuantity;
+
+    try {
+      const taxableValue = rate * dispatchQuantity;
     const netRate = taxableValue + (taxableValue * gst) / 100;
     return netRate?.toFixed(0);
+    } catch (error) {
+      return -1;
+    }
+
+    
   };
 
   return (
     <ScrollView>
+
+      {
+        status == "loading" ? <View className="w-screen h-screen flex flex-row justify-center items-center">
+        <Text>Loading...</Text>
+      </View>
+
+        :
+      
+
       <View className="w-[90%] mx-auto">
         <View className="bg-white rounded-lg p-5 my-5">
           <Text className="font-bold text-black text-xl">Estimate Details</Text>
@@ -34,10 +52,10 @@ const acceptedOrderSales = () => {
             <View className="flex flex-row justify-between my-2">
               <Text>Bill To:</Text>
               <View className="text-gray-700">
-                <Text>{salesBill?.customer?.customerName}</Text>
-                <Text>{salesBill?.customer?.address1}</Text>
-                <Text>{salesBill?.customer?.address2}</Text>
-                <Text>{salesBill?.customer?.phoneNumber}</Text>
+                <Text className="text-right">{salesBill?.customer?.customerName}</Text>
+                <Text className="text-right">{salesBill?.customer?.address1}</Text>
+                <Text className="text-right">{salesBill?.customer?.address2}</Text>
+                <Text className="text-right">{salesBill?.customer?.phoneNumber}</Text>
               </View>
             </View>
 
@@ -190,7 +208,7 @@ const acceptedOrderSales = () => {
 
         <View>
           <FlatList
-            data={salesBill?.items.length > 0 ? salesBill?.items : []}
+            data={salesBill?.items?.length > 0 ? salesBill?.items : []}
             renderItem={({ item, index }) => (
               <View
                 className={`bg-white rounded-lg shadow-md p-4 mb-4 w-full mx-auto`}
@@ -255,6 +273,9 @@ const acceptedOrderSales = () => {
           </View>
         </View>
       </View>
+
+      
+      }
     </ScrollView>
   );
 };

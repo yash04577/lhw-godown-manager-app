@@ -1,6 +1,8 @@
 import { FlatList, StyleSheet, Text, TextInput, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { MaterialIcons } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { acceptedPurchaseOrderAsync } from '@/redux/slices/inwardSlice';
 
 const TableRow = ({ item, index, type, assistant }: any) => {
   const [selectedAssistant, setSelectedAssitant] = useState();
@@ -28,31 +30,62 @@ const TableRow = ({ item, index, type, assistant }: any) => {
   
 
   return (
-      <TouchableOpacity
-      className="rounded-md"
-        onPress={() => console.log("pressed on ", item)}
-      >
-    <View className="bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto">
-      <View className="flex-row justify-between items-center border-b border-gray-200 pb-2">
-        <Text className="text-gray-700 font-medium">{index + 1}</Text>
-        <Text className="text-gray-700 font-medium">
-          {item.orderNumber}
-        </Text>
-      </View>
-      <View className="flex-row justify-between items-center mt-2">
-        <Text className="text-gray-700">{item.customerName} {item.customercode}</Text>
-        <Text className="text-gray-700">{item.date}</Text>
+
+    item.orders.map((order: any, orderIndex: any) => (
       
-      </View>
-     
-     
-        
-    </View>
-      </TouchableOpacity>
+
+<TouchableOpacity
+className="rounded-md"
+  onPress={() => console.log("pressed on ", item)}
+>
+<View className="bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto">
+<View className="flex-row justify-between items-center border-b border-gray-200 pb-2">
+  <Text className="text-gray-700 font-medium">{index + 1}</Text>
+  <Text className="text-gray-700">{order?.updatedAt?.slice(0, 10)}</Text>
+  <Text className="text-gray-700 font-medium">
+    {order?.orderNumber}
+  </Text>
+</View>
+<View className="flex-row justify-between items-center mt-2">
+  <Text className="text-gray-700">{item?.customer?.customerName} {item?.customer?.customerCode}</Text>
+</View>
+
+
+  
+</View>
+</TouchableOpacity>
+  ))
+
+      
   );
 };
 
 const acceptedItemsPurchase = () => {
+
+  const dispatch = useDispatch();
+
+  useEffect(()=>{
+    dispatch(acceptedPurchaseOrderAsync());
+  },[])
+
+  const data = useSelector((state:any)=>state?.inward?.acceptedOrders);
+  const PurchaseslipsDataByCustomer = data?.data
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredData = PurchaseslipsDataByCustomer && PurchaseslipsDataByCustomer.length > 0 && PurchaseslipsDataByCustomer?.filter((element: any) => {
+    const customerName = element?.customer?.customerName?.toLowerCase();
+    const customerCode = element?.customer?.customerCode?.toLowerCase();
+    const orderNumber = element?.orders?.map((order: any) => order?.orderNumber?.toLowerCase());
+    const query = searchQuery?.toLowerCase();
+
+    return (
+        (customerName?.includes(query) || customerCode?.includes(query) || orderNumber?.includes(query))
+    );
+});
+
+  useEffect(()=>{
+    console.log("mil hi gaya ", data)
+  },[data])
 
   const orders = [
     { date: '15-08-2024', customerName: 'Rohit', customercode: 'p1234', orderNumber: 's/vijay/04/7-24/034' },
@@ -68,6 +101,7 @@ const acceptedItemsPurchase = () => {
 ];
 
   return (
+    
     <View>
       <View className="w-[90%] mx-auto my-4">
         <TextInput 
@@ -78,7 +112,7 @@ const acceptedItemsPurchase = () => {
 
       <View>
       <FlatList
-        data={orders}
+        data={filteredData && filteredData.length > 0 ? filteredData : [] }
         renderItem={({ item, index }) => (
           <TableRow
             item={item}

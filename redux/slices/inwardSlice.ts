@@ -91,7 +91,7 @@ export const acceptedPurchaseOrderAsync: any = createAsyncThunk(
             return response;
         }
         catch (err) {
-            console.log("error on login slice ", err)
+            console.log("error on accepted purchase slice ", err)
         }
     }
 )

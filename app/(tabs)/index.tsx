@@ -59,15 +59,15 @@ export default function HomeScreen() {
 
   
 
-  // useEffect(() => {
-  //   dispatch(getOutwardSlipAsync({ limit: 20, page: 1 }));
-  //   dispatch(getAssistantAsync());
-  // }, [refreshData]);
+  useEffect(() => {
+    dispatch(getOutwardSlipAsync({ limit: 20, page: 1 }));
+    dispatch(getAssistantAsync());
+  }, [refreshData]);
 
 
-  // useEffect(() => {
-  //   dispatch(getOutwardSlipFiltersAsync());
-  // }, []);
+  useEffect(() => {
+    dispatch(getOutwardSlipFiltersAsync());
+  }, []);
 
 
   const handleDateChange = (event:any, selectedDate:any) => {
@@ -89,9 +89,9 @@ export default function HomeScreen() {
 };
 
 
-  // useEffect(()=>{
-  //   dispatch(getOutwardSlipAsync(query));
-  // },[query])
+  useEffect(()=>{
+    dispatch(getOutwardSlipAsync(query));
+  },[query])
   
 
   return (

@@ -66,6 +66,6 @@ export const acceptedPurchaseOrderApi = async() =>{
         console.log("ye h datataaaa ", data);
         return data
     } catch (error) {
-        console.log("error on outward api ", error)
+        console.log("error on accepted purchase api ", error)
     }
 }

@@ -7,19 +7,37 @@ const purchaseBill = () => {
     (state: any) => state?.purchase?.purchaseBill
   );
 
+  const status = useSelector((state:any)=>state?.purchase?.status);
+
 
   useEffect(()=>{
     console.log("ye raha purchase bill ", purchaseBill)
 },[purchaseBill])
 
   const getNetRate = (rate: any, dispatchQuantity: any, gst: any) => {
-    const taxableValue = rate * dispatchQuantity;
+
+    try {
+      const taxableValue = rate * dispatchQuantity;
     const netRate = taxableValue + (taxableValue * gst) / 100;
     return netRate?.toFixed(0);
+    } catch (error) {
+      return -1;
+    }
+
+    
   };
 
   return (
     <ScrollView>
+
+    {
+      status == "loading" ? <View className="w-screen h-screen flex flex-row justify-center items-center">
+      <Text>Loading...</Text>
+    </View>
+
+    :
+    
+
       <View className="w-[90%] mx-auto">
         <View className="bg-white rounded-lg p-5 my-5">
           <Text className="font-bold text-black text-xl">Estimate Details</Text>
@@ -182,7 +200,7 @@ const purchaseBill = () => {
 
         <View>
           <FlatList
-            data={purchaseBill?.items.length > 0 ? purchaseBill?.items : []}
+            data={purchaseBill?.items?.length > 0 ? purchaseBill?.items : []}
             renderItem={({ item, index }) => (
               <View
                 className={`bg-white rounded-lg shadow-md p-4 mb-4 w-full mx-auto`}
@@ -219,7 +237,7 @@ const purchaseBill = () => {
                   <View className="flex flex-row justify-between">
                     <Text>Taxable Value: </Text>
                     <Text className="text-gray-700">
-                      {(Number(item?.taxableValue) * Number(item?.receiveQuantity)).toFixed(0)}
+                      {(Number(item?.taxableValue) * Number(item?.receiveQuantity))?.toFixed(0)}
                     </Text>
                   </View>
                   <View className="flex flex-row justify-between">
@@ -251,6 +269,7 @@ const purchaseBill = () => {
           </View>
         </View>
       </View>
+      }
     </ScrollView>
   );
 };
