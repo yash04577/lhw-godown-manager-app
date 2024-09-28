@@ -1,5 +1,5 @@
 import axios from "axios";
-import { basePath, estimateSalesApiPath, inwardSlipApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath, salesBillApiPath } from "../apiRoutes";
+import { basePath, billNumberApiPath, estimateSalesApiPath, inwardSlipApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath, salesBillApiPath, voucherApiPath } from "../apiRoutes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -56,6 +56,31 @@ export const getCustomersOrdersForSalesApi = async({customerId}:any) =>{
         return data
     } catch (error) {
         console.log("error on customer api ", error)
+    }
+}
+
+
+export const getVouchersApi = async() =>{
+    try {
+        
+        const {data} = await axios.get(voucherApiPath);
+        // console.log("inward data ", data)
+        return data
+    } catch (error) {
+        console.log("error on customer api ", error)
+    }
+}
+
+
+export const getNextBillNosApi = async(voucher:any) =>{
+    try {
+        
+        console.log("voucher ", voucher)
+        const {data} = await axios.get(`${billNumberApiPath}/${voucher}`);
+        console.log("bill number ", data)
+        return data
+    } catch (error) {
+        console.log("error on bill number ", error)
     }
 }
 

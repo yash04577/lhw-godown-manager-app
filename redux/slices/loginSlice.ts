@@ -34,6 +34,7 @@ export const loginUserAsync: any = createAsyncThunk(
             // console.log("ressssss", response)
             const cookie = response.token;
             await saveCookie(cookie);
+            await AsyncStorage.setItem("loginData", JSON.stringify(response.loginData))
             return response;
         }
         catch (err) {

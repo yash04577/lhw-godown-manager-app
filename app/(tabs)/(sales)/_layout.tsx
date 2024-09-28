@@ -14,6 +14,7 @@ export default function RootLayout() {
         <Stack.Screen name="salesBill" options={{ headerShown: false }} />
         <Stack.Screen name="customerSales" options={{ headerShown: false }} />
         <Stack.Screen name="salesItems" options={{ headerShown: false }} />
+        <Stack.Screen name="addSales" options={{ headerShown: false }} />
       </Stack>
   );
 }

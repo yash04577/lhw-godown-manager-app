@@ -26,6 +26,8 @@ export const acceptedOrderDetailsPurchaseApiPath = `${basePath}/purchaseOrder/ge
 export const estimateSalesApiPath = `${basePath}/sales/bill/v2`;
 export const salesBillApiPath = `${basePath}/sales/bill`;
 export const purchaseBillApiPath = `${basePath}/purchaser/pages/bill/`;
+export const voucherApiPath = `${basePath}/voucher`
+export const billNumberApiPath = `${basePath}/sales/bill/billNumber`;
 
 
 

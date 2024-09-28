@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from "../api/authApi";
 import { getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
 import { getInwarddSlip } from "../api/inwardApi";
-import { getCustomersForSalesApi, getCustomersOrdersForSalesApi, getEstimateSales, getSalesBillApi } from "../api/estimateSalesApi";
+import { getCustomersForSalesApi, getCustomersOrdersForSalesApi, getEstimateSales, getNextBillNosApi, getSalesBillApi, getVouchersApi } from "../api/estimateSalesApi";
 
 
 interface LoginState {
@@ -21,6 +21,8 @@ const initialState = {
     salesBill: [],
     customers: [],
     items: [],
+    voucher: [],
+    billNumber: "",
 }
 
 
@@ -98,6 +100,38 @@ export const getCustomersOrdersForSalesAsync: any = createAsyncThunk(
     }
 )
 
+
+export const getVoucherAsync: any = createAsyncThunk(
+    "getVoucherAsync",
+    async (query) => {
+        try {
+            const response: any = await getVouchersApi();
+            console.log("voucher slice", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
+        }
+    }
+)
+
+
+export const getNextBillNoAsync: any = createAsyncThunk(
+    "getNextBillNoAsync",
+    async (voucher) => {
+        try {
+
+            console.log("vou ", voucher)
+            const response: any = await getNextBillNosApi(voucher);
+            console.log("bill number slice", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
+        }
+    }
+)
+
 // export const getOutwardSlipFiltersAsync: any = createAsyncThunk(
 //     "getOutwardSlipFiltersAsync",
 //     async (query) => {
@@ -145,6 +179,21 @@ export const EstimateSlice = createSlice({
             .addCase(getCustomersOrdersForSalesAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
                 state.items = action.payload;
+            })
+            .addCase(getVoucherAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getVoucherAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                state.voucher = action.payload;
+            })
+            .addCase(getNextBillNoAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getNextBillNoAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                console.log("billllllllllllllll", action.payload)
+                state.billNumber = action.payload;
             })
            
     }

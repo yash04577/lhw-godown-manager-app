@@ -29,7 +29,12 @@ const TableRow = ({ item, index }:any) => {
         const handleClick = (item:any) =>{
             console.log("cid ", item?._id)
             dispatch(getCustomersOrdersForSalesAsync({customerId:item?._id}))
-            router.push("/salesItems")
+            // router.push("/salesItems")
+
+            router.push({
+              pathname: "/salesItems",
+              params: { customer: JSON.stringify(item) },
+            });
         
         }
   
