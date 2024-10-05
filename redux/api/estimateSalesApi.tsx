@@ -1,5 +1,5 @@
 import axios from "axios";
-import { basePath, billNumberApiPath, estimateSalesApiPath, inwardSlipApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath, salesBillApiPath, voucherApiPath } from "../apiRoutes";
+import { basePath, billNumberApiPath, estimateSalesApiPath, generateBillApiPath, inwardSlipApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath, salesBillApiPath, voucherApiPath } from "../apiRoutes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -84,6 +84,17 @@ export const getNextBillNosApi = async(voucher:any) =>{
     }
 }
 
+
+export const generateBillApi = async(query:any) =>{
+    try {
+        
+        const {data} = await axios.post(generateBillApiPath, query);
+        console.log("bill data ", data)
+        return data
+    } catch (error) {
+        console.log("error on bill api ", error)
+    }
+}
 
 // export const getOutwardSlipFilters = async(query:any) =>{
 //     try {

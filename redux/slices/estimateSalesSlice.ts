@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from "../api/authApi";
 import { getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
 import { getInwarddSlip } from "../api/inwardApi";
-import { getCustomersForSalesApi, getCustomersOrdersForSalesApi, getEstimateSales, getNextBillNosApi, getSalesBillApi, getVouchersApi } from "../api/estimateSalesApi";
+import { generateBillApi, getCustomersForSalesApi, getCustomersOrdersForSalesApi, getEstimateSales, getNextBillNosApi, getSalesBillApi, getVouchersApi } from "../api/estimateSalesApi";
 
 
 interface LoginState {
@@ -132,6 +132,23 @@ export const getNextBillNoAsync: any = createAsyncThunk(
     }
 )
 
+
+export const generateBillAsync: any = createAsyncThunk(
+    "generateBillAsync",
+    async (payload) => {
+        try {
+
+            console.log("vou ", payload)
+            const response: any = await generateBillApi(payload);
+            console.log("bill number generate", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
+        }
+    }
+)
+
 // export const getOutwardSlipFiltersAsync: any = createAsyncThunk(
 //     "getOutwardSlipFiltersAsync",
 //     async (query) => {
@@ -194,6 +211,13 @@ export const EstimateSlice = createSlice({
                 state.status = 'completed',
                 console.log("billllllllllllllll", action.payload)
                 state.billNumber = action.payload;
+            })
+            .addCase(generateBillAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(generateBillAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                console.log("billllllllllllllll", action.payload)
             })
            
     }

@@ -7,6 +7,7 @@ import {
   TouchableNativeFeedback,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,6 +15,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
+  generateBillAsync,
   getNextBillNoAsync,
   getVoucherAsync,
 } from "@/redux/slices/estimateSalesSlice";
@@ -26,18 +28,11 @@ const addSales = () => {
 
   const [user, setUser] = useState();
 
-
-  const getUserId = async() => {
+  const getUserId = async () => {
     let userr = await AsyncStorage.getItem("loginData");
     let parsedUser = JSON.parse(userr);
     setUser(parsedUser);
-    console.log("userrrrrrrrrr ", user)
-  }
-
-
-  useEffect(()=>{
-    console.log("userId ", user)
-  },[user])
+  };
 
   const dispatch = useDispatch();
 
@@ -62,84 +57,47 @@ const addSales = () => {
     (voucher: any) => voucher?.typeOfVoucher == "sales"
   );
 
-
-  const router = useRouter();
-
-  
-
-  const [selectedGodown, setSelectedGodown] = useState("");
-  const [godownData, setGodownData] = useState([
-    {
-      _id: "65dc15c87d442240671928e6",
-      godownName: "virtual godown",
-    },
-    {
-      _id: "658fc1b672dd0a9107005aa9",
-      godownName: "Teen paani godown",
-    },
-    {
-      _id: "658a90b26c98a5c5a0de53b1",
-      godownName: "galla mandiii",
-    },
-    {
-      _id: "658a51342810a2d1d05f8082",
-      godownName: "sidcul godown",
-    },
-    {
-      _id: "6586aecb69943d8ed6a7d2c8",
-      godownName: "BYPASS ROAD",
-    },
-  ]);
-
-  const [filterStatus, setFilterStatus] = useState([
-    { id: 1, value: "pending" },
-    { id: 2, value: "accepted" },
-    { id: 3, value: "scanned" },
-    { id: 4, value: "loading" },
-    { id: 5, value: "weightDone" },
-  ]);
-
-  const [selectedStatus, setSelectedStatus] = useState("");
-
-  const [filterQuery, setFilterQuery] = useState({
-    orderNumber: "",
-    godown: "",
-    status: "",
-  });
-
   const salesBill = useSelector(
     (state: any) => state?.estimateSales?.salesBill
   );
 
   const status = useSelector((state: any) => state?.estimateSales?.status);
 
-  const [totalNetRate, setTotalNetRate] = useState<number>(0);
-  // let totalNetRate = 0;
+  // Convert totalNetRate to a state variable
+  const [totalNetRate, setTotalNetRate] = useState(0);
 
   const getNetRate = (rate: any, dispatchQuantity: any, gst: any) => {
     try {
       const taxableValue = rate * dispatchQuantity;
       const netRate = taxableValue + (taxableValue * gst) / 100;
-      // setTotalNetRate((prevState)=> prevState + netRate);
-      // totalNetRate += netRate;
-      return netRate?.toFixed(0);
+      return netRate;
     } catch (error) {
       return -1;
     }
   };
 
-  let total: number = 0;
-
+  // Update totalNetRate whenever parsedItems or additionalPrice change
   useEffect(() => {
-    setTotalNetRate(total);
-  }, [total]);
+    let tempTotal = 0;
+    parsedItems?.forEach((element: any) => {
+      tempTotal += Number(
+        getNetRate(
+          element?.taxableValue,
+          element?.dispatchQuantity,
+          element?.gst
+        )
+      );
+    });
 
-  parsedItems?.forEach((element: any) => {
-    total += Number(
-      getNetRate(element?.taxableValue, element?.dispatchQuantity, element?.gst)
-    );
-    console.log("kk ", total);
-  });
+    const additionalTotal =
+      Number(additionalPrice.loading || 0) +
+      Number(additionalPrice.unloading || 0) +
+      Number(additionalPrice.freight || 0) +
+      Number(additionalPrice.cutting || 0) +
+      Number(additionalPrice.tcs || 0);
+
+    setTotalNetRate(tempTotal + finalAdditionalPriceWithGst); // Add additionalPrice to totalNetRate
+  }, [parsedItems, additionalPrice]);
 
   const [additionalPrice, setAdditionalPrice] = useState({
     loading: 0,
@@ -166,7 +124,6 @@ const addSales = () => {
 
   const handleDateChange = (event: any, selectedDate: any) => {
     if (selectedDate) {
-      // Adjust for local time
       const offsetDate = new Date(
         selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000
       );
@@ -212,61 +169,54 @@ const addSales = () => {
     voucher: "66486b47b85dff24fa07af40",
   };
 
+  const [finalAdditionalPriceWithGst, setFinalAdditionalPriceWithGst] =
+    useState(0);
 
-  const [finalAdditionalPriceWithGst, setFinalAdditionalPriceWithGst] = useState(0);
-
-
-  useEffect(()=>{
-
-    let finalAdditionalPriceWithoutGst = Number(additionalPrice.cutting || 0) + Number(additionalPrice.freight || 0) + Number(additionalPrice.loading || 0) + Number(additionalPrice.unloading || 0);
-    setFinalAdditionalPriceWithGst( (finalAdditionalPriceWithoutGst + (finalAdditionalPriceWithoutGst * AddGst)/100) + Number(additionalPrice.tcs || 0));
-
-    setTotalNetRate(totalNetRate + finalAdditionalPriceWithGst);
-    
-  }, [additionalPrice, AddGst])
-
-  useEffect(()=>{
-    console.log("final add with gst ", finalAdditionalPriceWithGst);
-  },[finalAdditionalPriceWithGst])
-
-  useEffect(()=>{
-    console.log("total net rate ", totalNetRate)
-  },[totalNetRate])
+  useEffect(() => {
+    let finalAdditionalPriceWithoutGst =
+      Number(additionalPrice.cutting || 0) +
+      Number(additionalPrice.freight || 0) +
+      Number(additionalPrice.loading || 0) +
+      Number(additionalPrice.unloading || 0);
+    setFinalAdditionalPriceWithGst(
+      finalAdditionalPriceWithoutGst +
+        (finalAdditionalPriceWithoutGst * AddGst) / 100 +
+        Number(additionalPrice.tcs || 0)
+    );
+  }, [additionalPrice, AddGst]);
 
   const generateBill = async () => {
-
-    console.log("checkkkkkkkkkkkk ", user)
-
-
-    payload.additionPriceGst = AddGst;
-    payload.billNumber = nextBillNumber?.nextBillNumber;
-    payload.createdBy = user?.userId,
-    payload.customerId = parsedCustomer._id,
-    payload.finalAdditionalPrice = finalAdditionalPriceWithGst,
-    payload.additionalPrice = additionalPrice; 
-    payload.date = formatDate(new Date()),
-    // payload.date = date ? date : new Date(),
-    payload.status = "complete",
-    payload.voucher = selectedVoucher?._id,
-    payload.total = totalNetRate;
-    payload.items = parsedItems.map((item: any) => ({
-      item: item?.itemId,
-      salesOrder: item?.orderId,
-      godown: item?.godownId,
-      taxableValue: item?.taxableValue,
-      gst: item?.gst,
-      quantity: item?.quantity,
-      unit: item?.unit,
-      dispatchQuantity: item?.dispatchQuantity,
-      _id: item?.elementId,
-    })),
-
-
-    console.log("payload ", payload);
-
-
-
     try {
+      if (!selectedVoucher) {
+        alert("Please select voucher first!");
+      } else {
+        console.log("total nr 2 ", totalNetRate);
+        payload.additionPriceGst = AddGst;
+        payload.billNumber = nextBillNumber?.nextBillNumber;
+        (payload.createdBy = user?.userId),
+          (payload.customerId = parsedCustomer._id),
+          (payload.finalAdditionalPrice = finalAdditionalPriceWithGst),
+          (payload.additionalPrice = additionalPrice);
+        (payload.date = formatDate(new Date())),
+          // payload.date = date ? date : new Date(),
+          (payload.status = "complete"),
+          (payload.voucher = selectedVoucher?._id),
+          (payload.total = totalNetRate + finalAdditionalPriceWithGst);
+        (payload.items = parsedItems.map((item: any) => ({
+          item: item?.itemId,
+          salesOrder: item?.orderId,
+          godown: item?.godownId,
+          taxableValue: item?.taxableValue,
+          gst: item?.gst,
+          quantity: item?.quantity,
+          unit: item?.unit,
+          dispatchQuantity: item?.dispatchQuantity,
+          _id: item?.elementId,
+        }))),
+          console.log("payload ", payload);
+
+        // dispatch(generateBillAsync(payload))
+      }
     } catch (error) {
       return error;
     }
@@ -283,7 +233,7 @@ const addSales = () => {
           <View>
             <Dropdown
               style={[]}
-              className="text-2xl h-[100px]"
+              className="text-2xl h-[40px] w-[150px] rounded mt-2 bg-white border placeholder:pl-2"
               placeholderStyle={styles.placeholderStyle}
               selectedTextStyle={styles.selectedTextStyle}
               itemTextStyle={styles.itemContainerStyle}
@@ -302,15 +252,8 @@ const addSales = () => {
               renderLeftIcon={() => {
                 return (
                   <>
-                    {selectedVoucher != "" && (
-                      <TouchableNativeFeedback
-                        onPress={() =>
-                          setFilterQuery((query: any) => ({
-                            ...query,
-                            godown: "",
-                          }))
-                        }
-                      >
+                    {selectedVoucher && (
+                      <TouchableNativeFeedback>
                         <MaterialIcons
                           name="cancel"
                           size={20}
@@ -331,7 +274,7 @@ const addSales = () => {
                   className={`flex-row py-2 rounded-md border items-center justify-between px-2`}
                   style={{ borderWidth: 1 }}
                 >
-                  {date !== "" && (
+                  {date.toString() !== "" && (
                     <TouchableNativeFeedback
                       onPress={() => setDate(new Date(Date.now()))}
                     >
@@ -367,13 +310,15 @@ const addSales = () => {
               </View>
               <View className="flex flex-row justify-between my-2">
                 <Text>Status:</Text>
-                <Text className="text-gray-700">complete</Text>
+                <Text className="text-gray-700 bg-green-400 px-4 py-2 rounded">
+                  complete
+                </Text>
               </View>
 
               {/* Bill To Section */}
               <View className="flex flex-row my-2">
                 <View className="text-gray-700">
-                  <View className="flex flex-row justify-between border my-2">
+                  <View className="flex flex-row w-full justify-between my-2">
                     <Text>Customer:</Text>
                     <Text className="text-gray-700">
                       {parsedCustomer?.name} {parsedCustomer?.code}
@@ -567,7 +512,7 @@ const addSales = () => {
                   value={AddGst}
                   onChangeText={(value) => setAddGst(Number(value))}
                   keyboardType="numeric" // This sets the keyboard to numeric input
-                  placeholder="0"
+                  placeholder="18"
                 />
               </View>
             </View>
