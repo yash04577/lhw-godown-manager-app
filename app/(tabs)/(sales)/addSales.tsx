@@ -25,6 +25,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const addSales = () => {
   const { customer, items } = useLocalSearchParams();
   const customerString = Array.isArray(customer) ? customer[0] : customer;
+  const router = useRouter();
 
   const [user, setUser] = useState();
 
@@ -214,6 +215,7 @@ const addSales = () => {
           _id: item?.elementId,
         }))),
           console.log("payload ", payload);
+          router.replace("/")
 
         // dispatch(generateBillAsync(payload))
       }
@@ -330,13 +332,10 @@ const addSales = () => {
                       {parsedCustomer?.phoneNumber}
                     </Text>
                   </View>
-                  <View className="flex flex-row justify-between my-2">
+                  <View className="flex flex-row my-2 justify-between">
                     <Text>Address:</Text>
                     <Text className="text-gray-700">
-                      {parsedCustomer?.address1}
-                    </Text>
-                    <Text className="text-gray-700">
-                      {parsedCustomer?.address2}
+                      {parsedCustomer?.address1} {parsedCustomer?.address2}
                     </Text>
                   </View>
                   <View className="flex flex-row justify-between my-2">
@@ -413,7 +412,7 @@ const addSales = () => {
                           Number(item?.taxableValue),
                           Number(item?.dispatchQuantity),
                           Number(item?.gst)
-                        )}
+                        ).toFixed(3)}
                       </Text>
                     </View>
                   </View>
@@ -524,7 +523,7 @@ const addSales = () => {
             <View className="flex-row justify-between items-center border-b border-gray-200 pb-2">
               <Text className="text-gray-700 font-medium">Total:</Text>
               <Text className="text-gray-700 font-medium">
-                &#8377; {totalNetRate}
+                &#8377; {totalNetRate.toFixed(0)}
               </Text>
             </View>
           </View>

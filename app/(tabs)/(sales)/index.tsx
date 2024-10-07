@@ -2,7 +2,7 @@ import Pagination from "@/components/commanComponents/Pagination";
 import EstimateSalesTable from "@/components/estimateSales/EstimateSalesTable";
 import OutwardSlipCard from "@/components/outwardSlip/OutwardSlipCard";
 import OutwardSlipTable from "@/components/outwardSlip/OutwardSlipTable";
-import { getEstimateSalesAsync, getSalesBillAsync } from "@/redux/slices/estimateSalesSlice";
+import { getEstimateSalesAsync, getSalesBillAsync, getSalesFilterAsync } from "@/redux/slices/estimateSalesSlice";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -43,11 +43,11 @@ const TableRow = ({ item, index }:any) => {
           <Text className="text-gray-700">{item?.godown}</Text>
           <Text className="text-gray-700 font-medium">{item?.billNumber}</Text>
         </View>
-        <View className="flex-row justify-between items-center mt-2">
+        <View className="mt-2 ">
           <Text className="text-gray-700">{item?.customerName}</Text>
           <Text className="text-gray-700">{ item?.salesOrderNumber}</Text>
         </View>
-        <View className="flex-row justify-between items-center mt-2">
+        <View className="flex-row justify-between items-center mt-2 flex-1 flex-wrap">
           <Text className="text-gray-700">{item?.createdDate?.slice(0,10)}</Text>
           {/* <Text className="text-gray-700">{item.status}</Text> */}
           <Text className="text-gray-700">&#8377; {item?.total?.toFixed(0)}</Text>
@@ -59,6 +59,9 @@ const TableRow = ({ item, index }:any) => {
   };
 
 const estimateSales = ()=> {
+
+  const [refreshing, setRefreshing] = useState(false);
+
   const [godownData, setGodownData] = useState([
     {
       _id: "65dc15c87d442240671928e6",
@@ -90,6 +93,8 @@ const estimateSales = ()=> {
   const [dateModalOpen, setDateModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<String>("");
   const estimateSales = useSelector((state:any)=>state?.estimateSales?.data);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const filters = useSelector((state:any)=>state?.estimateSales?.filters)
 
   const dispatch = useDispatch();
 
@@ -112,9 +117,19 @@ const estimateSales = ()=> {
 
 
   useEffect(()=>{
+    dispatch(getSalesFilterAsync());
     dispatch(getEstimateSalesAsync({page:1, limit:10}));
   },[])
 
+  const handleRefresh = () =>{
+    console.log("refresh called")
+    dispatch(getEstimateSalesAsync({page:1, limit:10}));
+  }
+
+
+  useEffect(()=>{
+    console.log("a lo g ", filters)
+  },[filters])
  
 
   return (
@@ -257,6 +272,7 @@ const estimateSales = ()=> {
               data={godownData}
               disable={loading}
               maxHeight={220}
+              search
               labelField="godownName"
               valueField="_id" // need to ask ?
               placeholder={"Status"}
@@ -288,11 +304,51 @@ const estimateSales = ()=> {
           </View>
         </ScrollView>
         <View className="w-[90%] flex flex-row">
-        <TextInput 
-          placeholder="Search Customer..." 
-          className="border w-[70%] mx-auto px-2 py-1 rounded-md bg-white"
-        />
-        <TouchableOpacity onPress={()=> router.push("/customerSales")} className="bg-[#283093] flex justify-center items-center rounded-md"><Text className="text-white px-4 font-medium">Add Sales</Text></TouchableOpacity>
+        <View className="border flex justify-center items-center w-[68%] h-[50px] rounded-md px-2 bg-white">
+            <Dropdown
+              style={{width:"100%"}}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              itemTextStyle={styles.itemContainerStyle}
+              containerStyle={{ width: 300, borderRadius: 5, marginTop: 5 }}
+              data={ filters?.Customer?.length > 0 ? filters?.Customer : []}
+              disable={false}
+              maxHeight={220}
+              search
+              labelField="customerName"
+              valueField="_id" // need to ask ?
+              placeholder={"Search Customers..."}
+              value={selectedCustomer}
+              onChange={(customer: any) => {
+                setSelectedCustomer(customer);
+                dispatch(
+                  getEstimateSalesAsync({
+                    limit: 10,
+                    page: 1,
+                    customerId: customer._id,
+                  })
+                );
+              }}
+              renderLeftIcon={() => {
+                return (
+                  <>
+                    {selectedCustomer != null && (
+                      <TouchableNativeFeedback
+                        onPress={() => setSelectedCustomer(null)}
+                      >
+                        <MaterialIcons
+                          name="cancel"
+                          size={20}
+                          color={"black"}
+                        />
+                      </TouchableNativeFeedback>
+                    )}
+                  </>
+                );
+              }}
+            />
+          </View>
+        <TouchableOpacity onPress={()=> router.push("/customerSales")} className="bg-[#283093] flex justify-center items-center rounded-md ml-2"><Text className="text-white px-4 font-medium">Add Sales</Text></TouchableOpacity>
       </View>
       </View>
 
@@ -302,6 +358,8 @@ const estimateSales = ()=> {
       <View className="my-4 h-[85%]">
       <FlatList
       data={estimateSales}
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
       renderItem={({ item, index }) => <TableRow item={item} index={index} />}
       />
       </View>
