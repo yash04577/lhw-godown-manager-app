@@ -62,6 +62,9 @@ const salesItems = () => {
   
 
 
+  useEffect(()=>{
+    setFilteredItem(items)
+  },[items])
 
   const handleCheckboxChange = (item: any) => {
     const isSelected = selectedRows?.some(
@@ -123,19 +126,19 @@ const salesItems = () => {
     setFilteredItem(filterItem)
   },[filterQuery])
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    const uniqueOrders = items?.reduce((acc: any, current: any) => {
-      if (
-        !acc.some((order: any) => order.orderNumber === current.orderNumber)
-      ) {
-        acc.push(current);
-      }
-      return acc;
-    }, []);
+  //   const uniqueOrders = items?.reduce((acc: any, current: any) => {
+  //     if (
+  //       !acc.some((order: any) => order.orderNumber === current.orderNumber)
+  //     ) {
+  //       acc.push(current);
+  //     }
+  //     return acc;
+  //   }, []);
 
-    setOrderNumbers(uniqueOrders);
-  }, [items]);
+  //   setOrderNumbers(uniqueOrders);
+  // }, [items]);
 
   const handleRefresh = () =>{
     setFilterQuery({
@@ -306,8 +309,6 @@ const salesItems = () => {
         <FlatList
         
           data={filteredItems}
-          onRefresh={handleRefresh}
-          refreshing={isRefreshing}
           renderItem={({ item, index }) => (
 
             <TouchableOpacity onPress={()=>handleCheckboxChange(item)}>
