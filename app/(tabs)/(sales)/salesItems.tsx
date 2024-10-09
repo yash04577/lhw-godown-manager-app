@@ -15,12 +15,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 const salesItems = () => {
-  const items = useSelector((state: any) => state?.estimateSales?.items.data);
-  const [selectedGodown, setSelectedGodown] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
-  const [selectedOrderNumber, setSelectedOrderNumber] = useState("");
-  const [orderNumbers, setOrderNumbers] = useState([]);
   const router = useRouter();
+  const items = useSelector((state: any) => state?.estimateSales?.items.data);
+  const [orderNumbers, setOrderNumbers] = useState([]);
+  const [filteredItems, setFilteredItem] = useState(items);
+  const [selectedRows, setSelectedRows] = useState<any>([]);
+  const  { customer } = useLocalSearchParams();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [godownData, setGodownData] = useState([
     {
       _id: "65dc15c87d442240671928e6",
@@ -52,30 +53,15 @@ const salesItems = () => {
     { id: 5, value: "weightDone" },
   ]);
 
- 
-
-  // useEffect(() => {
-
-  //   const uniqueOrders = items?.reduce((acc: any, current: any) => {
-  //     if (
-  //       !acc.some((order: any) => order.orderNumber === current.orderNumber)
-  //     ) {
-  //       acc.push(current);
-  //     }
-  //     return acc;
-  //   }, []);
-
-  //   setOrderNumbers(uniqueOrders);
-  // }, [items]);
 
   const [filterQuery, setFilterQuery] = useState({
     orderNumber: "",
     godown: "",
     status: "",
   });
+  
 
 
-  const [selectedRows, setSelectedRows] = useState<any>([]);
 
   const handleCheckboxChange = (item: any) => {
     const isSelected = selectedRows?.some(
@@ -93,11 +79,6 @@ const salesItems = () => {
     }
   };
 
-  useEffect(()=>{
-    console.log("items ", selectedRows)
-  },[selectedRows])
-
-  const  { customer } = useLocalSearchParams();
 
   const AddBillingClick = () => {
     const hasPendingItems = selectedRows?.some(
@@ -106,28 +87,64 @@ const salesItems = () => {
     if (hasPendingItems) {
       alert("Select Only Weight Done status");
     } else if (selectedRows.length > 0) {
-      // navigate(`/billingpage`, {
-      //   state: {
-      //     item: selectedRows,
-      //     customer: CustomerId,
-      //   },
-      // });
-
+    
       router.push({
         pathname: "/addSales",
         params: { items: JSON.stringify(selectedRows), customer: customer },
       });
-
-      // router.push("/addSales")
 
     } else {
       alert("Please select at least one item for billing.");
     }
   }
 
+
   useEffect(()=>{
-    console.log("itemssssssss ", items)
-  }, [items])
+    let filterItem = items;
+
+    if(filterQuery.godown != ""){
+      filterItem = filterItem?.filter((item:any)=>(
+        item?.godown == filterQuery?.godown
+        ))
+    }
+
+    if(filterQuery.status != ""){
+      filterItem = filterItem?.filter((item:any)=>(
+        item?.status[item?.status?.length - 1]?.value == filterQuery?.status
+        ))
+    }
+
+    if(filterQuery.orderNumber != ""){
+      filterItem = filterItem?.filter((item:any)=>(
+        item?.orderNumber == filterQuery?.orderNumber
+        ))
+    }
+
+    setFilteredItem(filterItem)
+  },[filterQuery])
+
+  useEffect(() => {
+
+    const uniqueOrders = items?.reduce((acc: any, current: any) => {
+      if (
+        !acc.some((order: any) => order.orderNumber === current.orderNumber)
+      ) {
+        acc.push(current);
+      }
+      return acc;
+    }, []);
+
+    setOrderNumbers(uniqueOrders);
+  }, [items]);
+
+  const handleRefresh = () =>{
+    setFilterQuery({
+      godown:"",
+      status:"",
+      orderNumber:""
+    })
+
+  }
 
 
   return (
@@ -150,7 +167,8 @@ const salesItems = () => {
               labelField="godownName"
               valueField="godownName" // need to ask ?
               placeholder={"Godown"}
-              value={selectedGodown}
+              value={filterQuery?.godown}
+              
               // onFocus={() => setIsFocus2(true)}
               // onBlur={() => setIsFocus2(false)}
               onChange={(godown: any) => {
@@ -158,12 +176,11 @@ const salesItems = () => {
                   ...query,
                   godown: godown.godownName,
                 }));
-                setSelectedGodown(godown);
               }}
               renderLeftIcon={() => {
                 return (
                   <>
-                    {selectedGodown != "" && (
+                    {filterQuery?.godown != "" && (
                       <TouchableNativeFeedback
                         onPress={() =>
                           setFilterQuery((query: any) => ({
@@ -196,7 +213,7 @@ const salesItems = () => {
               labelField="value"
               valueField="value" // need to ask ?
               placeholder={"status"}
-              value={selectedStatus}
+              value={filterQuery?.status}
               // onFocus={() => setIsFocus2(true)}
               // onBlur={() => setIsFocus2(false)}
               onChange={(status: any) => {
@@ -204,12 +221,11 @@ const salesItems = () => {
                   ...query,
                   status: status.value,
                 }));
-                setSelectedStatus(status);
               }}
               renderLeftIcon={() => {
                 return (
                   <>
-                    {selectedStatus != "" && (
+                    {filterQuery?.status != "" && (
                       <TouchableNativeFeedback
                         onPress={() =>
                           setFilterQuery((query: any) => ({
@@ -237,13 +253,14 @@ const salesItems = () => {
               placeholderStyle={styles.placeholderStyle}
               selectedTextStyle={styles.selectedTextStyle}
               itemTextStyle={styles.itemContainerStyle}
-              containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
+              containerStyle={{ width: 250, borderRadius: 5, marginTop: 5 }}
               data={orderNumbers}
               maxHeight={220}
+              search
               labelField="orderNumber"
               valueField="orderNumber" // need to ask ?
               placeholder={"Order Number"}
-              value={selectedOrderNumber}
+              value={filterQuery?.orderNumber}
               // onFocus={() => setIsFocus2(true)}
               // onBlur={() => setIsFocus2(false)}
               onChange={(orderNumber: any) => {
@@ -251,12 +268,11 @@ const salesItems = () => {
                   ...query,
                   orderNumber: orderNumber.orderNumber,
                 }));
-                setSelectedOrderNumber(orderNumber);
               }}
               renderLeftIcon={() => {
                 return (
                   <>
-                    {selectedOrderNumber != "" && (
+                    {filterQuery?.orderNumber != "" && (
                       <TouchableNativeFeedback
                         onPress={() =>
                           setFilterQuery((query: any) => ({
@@ -288,7 +304,10 @@ const salesItems = () => {
 
       <View>
         <FlatList
-          data={items}
+        
+          data={filteredItems}
+          onRefresh={handleRefresh}
+          refreshing={isRefreshing}
           renderItem={({ item, index }) => (
 
             <TouchableOpacity onPress={()=>handleCheckboxChange(item)}>
@@ -296,7 +315,7 @@ const salesItems = () => {
            
 
             <View
-              className={`bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto ${selectedRows.some((selectedItem: any) =>selectedItem?.elementId === item?.elementId) ? "bg-blue-200" : ""}`}
+              className={`bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mt-2 mx-auto ${selectedRows.some((selectedItem: any) =>selectedItem?.elementId === item?.elementId) ? "bg-blue-200" : ""}`}
             >
               <View className="flex-row justify-between items-center border-b border-gray-200 pb-2">
                 <Text className="text-gray-700 font-medium">{index + 1}</Text>

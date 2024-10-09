@@ -98,7 +98,7 @@ const estimateSales = ()=> {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const filters = useSelector((state:any)=>state?.estimateSales?.filters)
   const vourcher = useSelector((state:any)=>state?.estimateSales?.voucher);
-  let selectedVoucher = [];
+  let selectedVoucher:[] = []
 
   const dispatch = useDispatch();
 
@@ -173,7 +173,7 @@ const estimateSales = ()=> {
               // onFocus={() => setIsFocus2(true)}
               // onBlur={() => setIsFocus2(false)}
               onChange={(voucher: any) => {
-                selectedVoucher.push(voucher._id)
+                selectedVoucher.push(voucher)
                 dispatch(
                   getEstimateSalesAsync({
                     limit: 10,
@@ -187,7 +187,7 @@ const estimateSales = ()=> {
                   <>
                     {selectedVoucher.length > 0 && (
                       <TouchableNativeFeedback
-                        onPress={() => setSelectedGodown("")}
+                        onPress={() => selectedVoucher.splice(0, selectedVoucher.length)}
                       >
                         <MaterialIcons
                           name="cancel"

@@ -214,10 +214,15 @@ const addSales = () => {
           dispatchQuantity: item?.dispatchQuantity,
           _id: item?.elementId,
         }))),
-          console.log("payload ", payload);
-          router.replace("/")
 
-        // dispatch(generateBillAsync(payload))
+
+        dispatch(generateBillAsync(payload)).then((res:any)=>
+          router.replace("/")
+        )
+        .cath((error:any)=>
+        console.log("payload ", error)
+        )
+
       }
     } catch (error) {
       return error;
