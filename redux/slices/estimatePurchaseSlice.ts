@@ -99,7 +99,7 @@ export const PurchaseSlice = createSlice({
             .addCase(getPurchaseBillAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
                 state.purchaseBill = action.payload.data;
-                console.log("purchase billl state ", action.payload)
+                // console.log("purchase billl state ", action.payload)
             })
            
     }

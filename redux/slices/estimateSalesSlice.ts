@@ -49,7 +49,7 @@ export const getEstimateSalesAsync: any = createAsyncThunk(
     async (query) => {
         try {
             const response: any = await getEstimateSales(query);
-            console.log("query slice", query)
+            // console.log("query slice", query)
             return response;
         }
         catch (err) {
@@ -106,7 +106,7 @@ export const getVoucherAsync: any = createAsyncThunk(
     async (query) => {
         try {
             const response: any = await getVouchersApi();
-            console.log("voucher slice", response)
+            // console.log("voucher slice", response)
             return response;
         }
         catch (err) {
@@ -121,9 +121,9 @@ export const getNextBillNoAsync: any = createAsyncThunk(
     async (voucher) => {
         try {
 
-            console.log("vou ", voucher)
+            // console.log("vou ", voucher)
             const response: any = await getNextBillNosApi(voucher);
-            console.log("bill number slice", response)
+            // console.log("bill number slice", response)
             return response;
         }
         catch (err) {
@@ -138,9 +138,9 @@ export const generateBillAsync: any = createAsyncThunk(
     async (payload) => {
         try {
 
-            console.log("vou ", payload)
+            // console.log("vou ", payload)
             const response: any = await generateBillApi(payload);
-            console.log("bill number generate", response)
+            // console.log("bill number generate", response)
             return response;
         }
         catch (err) {
@@ -156,7 +156,7 @@ export const getSalesFilterAsync: any = createAsyncThunk(
         try {
 
             const response: any = await getSalesFilterApi();
-            console.log("bill number filters slice", response)
+            // console.log("bill number filters slice", response)
             return response;
         }
         catch (err) {
@@ -225,22 +225,22 @@ export const EstimateSlice = createSlice({
             })
             .addCase(getNextBillNoAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
-                console.log("billllllllllllllll", action.payload)
+                // console.log("billllllllllllllll", action.payload)
                 state.billNumber = action.payload;
             })
             .addCase(generateBillAsync.pending, (state) => {
                 state.status = 'loading'
             })
             .addCase(generateBillAsync.fulfilled, (state, action) => {
-                state.status = 'completed',
-                console.log("billllllllllllllll", action.payload)
+                state.status = 'completed'
+                // console.log("billllllllllllllll", action.payload)
             })
             .addCase(getSalesFilterAsync.pending, (state) => {
                 state.status = 'loading'
             })
             .addCase(getSalesFilterAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
-                console.log("payload   ", action.payload)
+                // console.log("payload   ", action.payload)
                 state.filters = action.payload;
             })
            

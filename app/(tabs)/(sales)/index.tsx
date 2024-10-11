@@ -134,16 +134,16 @@ const estimateSales = ()=> {
   },[])
 
   const handleRefresh = () =>{
-    console.log("refresh called")
+    // console.log("refresh called")
     setSelectedCustomer(null);
     dispatch(getEstimateSalesAsync({page:1, limit:10}));
   }
 
   const [date, setDate] = useState(new Date(Date.now()));
 
-  useEffect(()=>{
-    console.log("a lo g ", vourcher)
-  },[vourcher])
+  // useEffect(()=>{
+  //   console.log("a lo g ", vourcher)
+  // },[vourcher])
  
 
   return (

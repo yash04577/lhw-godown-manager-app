@@ -27,7 +27,7 @@ const TableRow = ({ item, index }:any) => {
         const router = useRouter();
   
         const handleClick = (item:any) =>{
-            console.log("cid ", item?._id)
+            // console.log("cid ", item?._id)
             dispatch(getCustomersOrdersForSalesAsync({customerId:item?._id}))
             // router.push("/salesItems")
 
@@ -115,9 +115,9 @@ const estimateSales = ()=> {
 
   const customers = useSelector((state:any)=>state?.estimateSales?.customers)
 
-  useEffect(()=>{
-    console.log("customerrrrr ", customers)
-},[customers])
+//   useEffect(()=>{
+//     console.log("customerrrrr ", customers)
+// },[customers])
 
  
 

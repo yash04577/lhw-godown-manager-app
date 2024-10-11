@@ -75,9 +75,9 @@ export const getVouchersApi = async() =>{
 export const getNextBillNosApi = async(voucher:any) =>{
     try {
         
-        console.log("voucher ", voucher)
+        // console.log("voucher ", voucher)
         const {data} = await axios.get(`${billNumberApiPath}/${voucher}`);
-        console.log("bill number ", data)
+        // console.log("bill number ", data)
         return data
     } catch (error) {
         console.log("error on bill number ", error)
@@ -89,7 +89,7 @@ export const generateBillApi = async(query:any) =>{
     try {
         
         const {data} = await axios.post(generateBillApiPath, query);
-        console.log("bill data ", data)
+        // console.log("bill data ", data)
         return data
     } catch (error) {
         console.log("error on bill api ", error)
@@ -101,7 +101,7 @@ export const getSalesFilterApi = async() =>{
     try {
         
         const {data} = await axios.get(getSalesFilterApiPath);
-        console.log("bill data filters ", data)
+        // console.log("bill data filters ", data)
         return data
     } catch (error) {
         console.log("error on bill api ", error)

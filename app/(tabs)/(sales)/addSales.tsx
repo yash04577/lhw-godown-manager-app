@@ -191,7 +191,7 @@ const addSales = () => {
       if (!selectedVoucher) {
         alert("Please select voucher first!");
       } else {
-        console.log("total nr 2 ", totalNetRate);
+        // console.log("total nr 2 ", totalNetRate);
         payload.additionPriceGst = AddGst;
         payload.billNumber = nextBillNumber?.nextBillNumber;
         (payload.createdBy = user?.userId),
@@ -202,7 +202,7 @@ const addSales = () => {
           // payload.date = date ? date : new Date(),
           (payload.status = "complete"),
           (payload.voucher = selectedVoucher?._id),
-          (payload.total = totalNetRate + finalAdditionalPriceWithGst);
+          (payload.total = totalNetRate);
         (payload.items = parsedItems.map((item: any) => ({
           item: item?.itemId,
           salesOrder: item?.orderId,
