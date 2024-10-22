@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getEstimatePurchase, getPurchaseBillApi } from "../api/estimatePurchaseApi";
+import { getEstimatePurchase, getPurchaseBillApi, getPurchaseByCustomerApi, getPurchaseCustomerApi } from "../api/estimatePurchaseApi";
 
 
 interface LoginState {
@@ -16,6 +16,8 @@ const initialState = {
     filterLoading:false,
     status: 'idle',
     purchaseBill:{},
+    purchaseCustomer: {},
+    customerOrder: {},
 }
 
 
@@ -66,6 +68,37 @@ export const getPurchaseBillAsync: any = createAsyncThunk(
   }
 )
 
+
+export const getPurchaseCustomerAsync: any = createAsyncThunk(
+  "getPurchaseCustomerAsync",
+  async (query) => {
+      try {
+          const response: any = await getPurchaseCustomerApi(query);
+          console.log("purchase slic customer", response);
+          return response;
+      }
+      catch (err) {
+          console.log("error on login slice ", err)
+      }
+  }
+)
+
+
+export const getPurchaseByCustomerAsync: any = createAsyncThunk(
+  "getPurchaseByCustomerAsync",
+  async (query) => {
+      try {
+          const response: any = await getPurchaseByCustomerApi(query);
+          console.log("purchase slic customer id", response);
+          return response;
+      }
+      catch (err) {
+          console.log("error on login slice ", err)
+      }
+  }
+)
+
+
 // export const getOutwardSlipFiltersAsync: any = createAsyncThunk(
 //     "getOutwardSlipFiltersAsync",
 //     async (query) => {
@@ -100,6 +133,22 @@ export const PurchaseSlice = createSlice({
                 state.status = 'completed',
                 state.purchaseBill = action.payload.data;
                 // console.log("purchase billl state ", action.payload)
+            })
+            .addCase(getPurchaseCustomerAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getPurchaseCustomerAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                state.purchaseCustomer = action.payload.data;
+                console.log("purchase customer state ", action.payload)
+            })
+            .addCase(getPurchaseByCustomerAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getPurchaseByCustomerAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                state.customerOrder = action.payload.data;
+                console.log("purchase customer state id ", action.payload)
             })
            
     }

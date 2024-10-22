@@ -94,6 +94,7 @@ const estimatePurchase = ()=> {
   const [dateModalOpen, setDateModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<String>("");
   const purchaseBills = useSelector((state:any)=>state?.purchase?.data)
+  const router = useRouter();
 
   const dispatch = useDispatch();
 
@@ -294,7 +295,7 @@ const estimatePurchase = ()=> {
           placeholder="Search Customer..." 
           className="border w-[65%] mx-auto px-2 py-1 rounded-md bg-white"
         />
-        <TouchableOpacity className="bg-[#283093] flex justify-center items-center rounded-md"><Text className="text-white px-4 font-medium">Add Purchase</Text></TouchableOpacity>
+        <TouchableOpacity onPress={()=> router.push("/customerPurchase")} className="bg-[#283093] flex justify-center items-center rounded-md"><Text className="text-white px-4 font-medium">Add Purchase</Text></TouchableOpacity>
       </View>
       </View>
 
