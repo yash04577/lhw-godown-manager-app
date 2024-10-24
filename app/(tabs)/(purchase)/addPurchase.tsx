@@ -88,28 +88,23 @@ import {
         tempTotal += Number(
           getNetRate(
             element?.taxableValue,
-            element?.dispatchQuantity,
+            element?.receiveQuantity,
             element?.gst
           )
         );
       });
   
-      const additionalTotal =
-        Number(additionalPrice.loading || 0) +
-        Number(additionalPrice.unloading || 0) +
-        Number(additionalPrice.freight || 0) +
-        Number(additionalPrice.cutting || 0) +
-        Number(additionalPrice.tcs || 0);
-  
+      // console.log("temp total ", tempTotal);
+      // console.log("final add ", finalAdditionalPriceWithGst);
       setTotalNetRate(tempTotal + finalAdditionalPriceWithGst); // Add additionalPrice to totalNetRate
     }, [parsedItems, additionalPrice]);
   
     const [additionalPrice, setAdditionalPrice] = useState({
       loading: 0,
-      unloading: 0,
+      insaurance: 0,
       freight: 0,
-      cutting: 0,
-      tcs: 0,
+      cashDiscount: 0,
+      frightNonGst: 0,
     });
   
     const targetVouchers = [
@@ -155,23 +150,21 @@ import {
     };
   
     let payload = {
-      additionPriceGst: 18,
       additionalPrice: {
         loading: "",
-        unloading: "",
+        insaurance: "",
         freight: "",
-        cutting: "",
-        tcs: "",
+        cashDiscount: "",
+        frightNonGst: "",
       },
       billNumber: "",
       createdBy: "",
       customerId: "",
       date: "",
-      finalAdditionalPrice: 0,
       items: [],
       status: "complete",
       total: 0,
-      voucher: "66486b47b85dff24fa07af40",
+      voucher: "",
     };
   
     const [finalAdditionalPriceWithGst, setFinalAdditionalPriceWithGst] =
@@ -179,14 +172,13 @@ import {
   
     useEffect(() => {
       let finalAdditionalPriceWithoutGst =
-        Number(additionalPrice.cutting || 0) +
+        Number(additionalPrice.insaurance || 0) +
         Number(additionalPrice.freight || 0) +
-        Number(additionalPrice.loading || 0) +
-        Number(additionalPrice.unloading || 0);
+        Number(additionalPrice.loading || 0); 
       setFinalAdditionalPriceWithGst(
         finalAdditionalPriceWithoutGst +
           (finalAdditionalPriceWithoutGst * AddGst) / 100 +
-          Number(additionalPrice.tcs || 0)
+          Number(additionalPrice.frightNonGst || 0) - Number(additionalPrice.cashDiscount || 0) - Number((Number(additionalPrice.cashDiscount || 0) * AddGst) / 100)
       );
     }, [additionalPrice, AddGst]);
   
@@ -196,12 +188,15 @@ import {
           alert("Please select voucher first!");
         } else {
           // console.log("total nr 2 ", totalNetRate);
-          payload.additionPriceGst = AddGst;
+          // payload.additionPriceGst = AddGst;
           payload.billNumber = nextBillNumber?.nextBillNumber;
           (payload.createdBy = user?.userId),
             (payload.customerId = parsedCustomer._id),
-            (payload.finalAdditionalPrice = finalAdditionalPriceWithGst),
-            (payload.additionalPrice = additionalPrice);
+            // (payload.finalAdditionalPrice = finalAdditionalPriceWithGst),
+            payload.additionalPrice =  Object.keys(additionalPrice).map(key => ({
+              fieldName: key,
+              value: additionalPrice[key].toString(),
+            }));
           (payload.date = formatDate(new Date())),
             // payload.date = date ? date : new Date(),
             (payload.status = "complete"),
@@ -209,23 +204,25 @@ import {
             (payload.total = totalNetRate);
           (payload.items = parsedItems.map((item: any) => ({
             item: item?.itemId,
-            salesOrder: item?.orderId,
+            purchaseOrder: item?.orderId,
             godown: item?.godownId,
             taxableValue: item?.taxableValue,
             gst: item?.gst,
             quantity: item?.quantity,
             unit: item?.unit,
-            dispatchQuantity: item?.dispatchQuantity,
+            receiveQuantity: item?.receiveQuantity,
             _id: item?.elementId,
           }))),
   
   
-          dispatch(generateBillAsync(payload)).then((res:any)=>
-            router.replace("/")
-          )
-          .cath((error:any)=>
-          console.log("payload ", error)
-          )
+          // dispatch(generateBillAsync(payload)).then((res:any)=>
+          //   router.replace("/")
+          // )
+          // .cath((error:any)=>
+          // console.log("payload ", error)
+          // )
+
+          console.log("payload ", payload)
   
         }
       } catch (error) {
@@ -393,7 +390,7 @@ import {
                       <View className="flex flex-row justify-between">
                         <Text>Dispatch Quantity: </Text>
                         <Text className="text-gray-700">
-                          {item?.dispatchQuantity}
+                          {item?.receiveQuantity}
                         </Text>
                       </View>
                       <View className="flex flex-row justify-between">
@@ -454,14 +451,14 @@ import {
                   />
                 </View>
                 <View className="flex flex-row gap-5 justify-between">
-                  <Text>Unloading:</Text>
+                  <Text>Insaurance:</Text>
                   <TextInput
                     style={styles.input}
-                    value={additionalPrice?.unloading}
+                    value={additionalPrice?.insaurance}
                     onChangeText={(value) =>
                       setAdditionalPrice((prevPrices: any) => ({
                         ...prevPrices,
-                        unloading: value,
+                        insaurance: value,
                       }))
                     }
                     keyboardType="numeric" // This sets the keyboard to numeric input
@@ -484,14 +481,14 @@ import {
                   />
                 </View>
                 <View className="flex flex-row gap-5 justify-between">
-                  <Text>Cutting:</Text>
+                  <Text>Cash Discount:</Text>
                   <TextInput
                     style={styles.input}
-                    value={additionalPrice?.cutting}
+                    value={additionalPrice?.cashDiscount}
                     onChangeText={(value) =>
                       setAdditionalPrice((prevPrices: any) => ({
                         ...prevPrices,
-                        cutting: value,
+                        cashDiscount: value,
                       }))
                     }
                     keyboardType="numeric" // This sets the keyboard to numeric input
@@ -499,14 +496,14 @@ import {
                   />
                 </View>
                 <View className="flex flex-row gap-5 justify-between">
-                  <Text>TCS:</Text>
+                  <Text>Fright Non Gst:</Text>
                   <TextInput
                     style={styles.input}
-                    value={additionalPrice?.tcs}
+                    value={additionalPrice?.frightNonGst}
                     onChangeText={(value) =>
                       setAdditionalPrice((prevPrices: any) => ({
                         ...prevPrices,
-                        tcs: value,
+                        frightNonGst: value,
                       }))
                     }
                     keyboardType="numeric" // This sets the keyboard to numeric input

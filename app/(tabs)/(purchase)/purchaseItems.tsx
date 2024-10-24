@@ -66,7 +66,7 @@ import { getPurchaseByCustomerAsync } from "@/redux/slices/estimatePurchaseSlice
       { id: 2, value: "accepted" },
       { id: 3, value: "scanned" },
       { id: 4, value: "loading" },
-      { id: 5, value: "verified" },
+      { id: 5, value: "verfied" },
     ]);
   
   
@@ -101,7 +101,7 @@ import { getPurchaseByCustomerAsync } from "@/redux/slices/estimatePurchaseSlice
   
     const AddBillingClick = () => {
       const hasPendingItems = selectedRows?.some(
-        (row: any) => row.status[row.status.length - 1]?.value !== "verified"
+        (row: any) => row.status[row.status.length - 1]?.value !== "verfied"
       );
       if (hasPendingItems) {
         alert("Select Only Weight Done status");
@@ -372,7 +372,7 @@ import { getPurchaseByCustomerAsync } from "@/redux/slices/estimatePurchaseSlice
                                       "scanned"
                                       ? "#E6EBFF"
                                       : item.status[item.status.length - 1]?.value ===
-                                        "verified"
+                                        "verfied"
                                         ? "#FFF2DC"
                                         : item.status[item.status.length - 1]?.value ===
                                           "accepted"
@@ -390,7 +390,7 @@ import { getPurchaseByCustomerAsync } from "@/redux/slices/estimatePurchaseSlice
                                       "scanned"
                                       ? "#0A6FFF"
                                       : item.status[item.status.length - 1]?.value ===
-                                        "verified"
+                                        "verfied"
                                         ? "#F59E0B"
                                         : item.status[item.status.length - 1]?.value ===
                                           "accepted"
