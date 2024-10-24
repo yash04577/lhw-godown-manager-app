@@ -3,6 +3,7 @@ import React from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
+import FontAwesome from "react-native-vector-icons/FontAwesome"
 import { View } from 'react-native';
 
 
@@ -48,6 +49,15 @@ export default function TabLayout() {
           title: 'Purchase',
           tabBarIcon: ({ color, focused }) => (
             <MaterialIcons name="money-off" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="(profile)"
+        options={{
+          title: 'profile',
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons name="supervised-user-circle" size={24} color={color} />
           ),
         }}
       />
