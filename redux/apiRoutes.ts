@@ -36,3 +36,5 @@ export const getSalesFilterApiPath = `${basePath}/salesOrder/getPastOrderFilter/
 export const estimatePurchaseApiPath = `${basePath}/purchaser/pages/bill/all`;
 export const getPurchaseCustomerApiPath = `${basePath}/https://www.lohawalla.com/sales/pages/customer//getAllCustomerForPurchase/v2?page=1&limit=10&search=`
 export const getPurchaseByCustomerApiPath = `${basePath}/purchaseOrder/byCustomer/complete/`
+export const purchaseBillNumberApiPath = `${basePath}/purchaser/pages/bill/billNumber/`;
+export const generatePurchaseBillApiPath = `${basePath}/purchaser/pages/bill`;

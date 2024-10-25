@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getEstimatePurchase, getPurchaseBillApi, getPurchaseByCustomerApi, getPurchaseCustomerApi } from "../api/estimatePurchaseApi";
+import { generatePurchaseBillApi, getEstimatePurchase, getNextBillNoPurchaseApi, getPurchaseBillApi, getPurchaseByCustomerApi, getPurchaseCustomerApi } from "../api/estimatePurchaseApi";
 
 
 interface LoginState {
@@ -18,6 +18,7 @@ const initialState = {
     purchaseBill:{},
     purchaseCustomer: {},
     customerOrder: {},
+    nextBillNumber: {},
 }
 
 
@@ -99,6 +100,39 @@ export const getPurchaseByCustomerAsync: any = createAsyncThunk(
 )
 
 
+export const getNextBillNoPurchaseAsync: any = createAsyncThunk(
+    "getNextBillNoPurchaseAsync",
+    async (voucher) => {
+        try {
+
+            // console.log("vou ", voucher)
+            const response: any = await getNextBillNoPurchaseApi(voucher);
+            console.log("bill number slice purchase", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
+        }
+    }
+)
+
+export const generatePurchaseBillAsync: any = createAsyncThunk(
+    "generatePurchaseBillAsync",
+    async (payload) => {
+        try {
+
+            // console.log("vou ", payload)
+            const response: any = await generatePurchaseBillApi(payload);
+            // console.log("bill number generate", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
+        }
+    }
+)
+
+
 // export const getOutwardSlipFiltersAsync: any = createAsyncThunk(
 //     "getOutwardSlipFiltersAsync",
 //     async (query) => {
@@ -149,6 +183,21 @@ export const PurchaseSlice = createSlice({
                 state.status = 'completed',
                 state.customerOrder = action.payload.data;
                 console.log("purchase customer state id ", action.payload)
+            })
+            .addCase(getNextBillNoPurchaseAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getNextBillNoPurchaseAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                state.nextBillNumber = action.payload;
+                console.log("purchase customer state id ", action.payload)
+            })
+            .addCase(generatePurchaseBillAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(generatePurchaseBillAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                console.log("purchase bill generated state id ", action.payload)
             })
            
     }
