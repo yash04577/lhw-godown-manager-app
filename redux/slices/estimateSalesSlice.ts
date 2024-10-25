@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from "../api/authApi";
 import { getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
 import { getInwarddSlip } from "../api/inwardApi";
-import { generateBillApi, getCustomersForSalesApi, getCustomersOrdersForSalesApi, getEstimateSales, getNextBillNosApi, getSalesBillApi, getSalesFilterApi, getVouchersApi } from "../api/estimateSalesApi";
+import { generateBillApi, getCustomersForSalesApi, getCustomersOrdersForSalesApi, getEstimateSales, getNextBillNosApi, getSalesBillApi, getSalesFilterApi, getVouchersApi, updateDispatchQtyApi } from "../api/estimateSalesApi";
 
 
 interface LoginState {
@@ -23,6 +23,7 @@ const initialState = {
     items: [],
     voucher: [],
     billNumber: "",
+    updatedItem: {},
 }
 
 
@@ -149,6 +150,22 @@ export const generateBillAsync: any = createAsyncThunk(
     }
 )
 
+export const updateDispatchQtyAsync: any = createAsyncThunk(
+    "updateDispatchQtyAsync",
+    async (payload) => {
+        try {
+
+            console.log("dis payload ", payload)
+            const response: any = await updateDispatchQtyApi(payload);
+            console.log("disp res slice", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
+        }
+    }
+)
+
 
 export const getSalesFilterAsync: any = createAsyncThunk(
     "getSalesFilterAsync",
@@ -242,6 +259,13 @@ export const EstimateSlice = createSlice({
                 state.status = 'completed',
                 // console.log("payload   ", action.payload)
                 state.filters = action.payload;
+            })
+            .addCase(updateDispatchQtyAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(updateDispatchQtyAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                state.updatedItem = action.payload;
             })
            
     }

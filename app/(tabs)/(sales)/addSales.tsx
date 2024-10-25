@@ -8,6 +8,8 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Modal,
+  Pressable,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,11 +20,13 @@ import {
   generateBillAsync,
   getNextBillNoAsync,
   getVoucherAsync,
+  updateDispatchQtyAsync,
 } from "@/redux/slices/estimateSalesSlice";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const addSales = () => {
+  const [modalVisible, setModalVisible] = useState(false);
   const { customer, items } = useLocalSearchParams();
   const customerString = Array.isArray(customer) ? customer[0] : customer;
   const router = useRouter();
@@ -49,7 +53,11 @@ const addSales = () => {
     console.error("Failed to parse customer: ", error);
   }
 
-  const parsedItems = items ? JSON.parse(items) : [];
+  const [parsedItems, setParsedItems] = useState([]);
+
+  useEffect(() => {
+    setParsedItems(JSON.parse(items));
+  }, [items]);
 
   const vouchers = useSelector(
     (state: any) => state?.estimateSales?.voucher?.vouchers
@@ -214,23 +222,111 @@ const addSales = () => {
           dispatchQuantity: item?.dispatchQuantity,
           _id: item?.elementId,
         }))),
+          dispatch(generateBillAsync(payload))
+            .then((res: any) => router.replace("/"))
+            .cath((error: any) => console.log("payload ", error));
 
-
-        dispatch(generateBillAsync(payload)).then((res:any)=>
-          router.replace("/")
-        )
-        .cath((error:any)=>
-        console.log("payload ", error)
-        )
-
+          console.log("payload ", payload)
       }
     } catch (error) {
       return error;
     }
   };
 
+  const [selectedQuantity, setSelectedQuantity] = useState({});
+
+  const [editIndex, setEditIndex] = useState(-1);
+
+  const handleModalChange = async (item: any, ind: number) => {
+    setModalVisible(!modalVisible);
+    setSelectedQuantity(item);
+    setUpdateQtyPayload((prev) => ({
+      ...prev,
+      elementId: item.elementId,
+      id: item.orderId,
+    }));
+    setEditIndex(Number(ind));
+  };
+
+  const [updateQtyPayload, setUpdateQtyPayload] = useState({});
+
+  useEffect(() => {
+    console.log("update qty ", updateQtyPayload);
+  }, [updateQtyPayload]);
+
+  const handleSaveQuantity = async() =>{
+    setParsedItems((prev) => {
+      const newItems: any = [...prev];
+      newItems[editIndex] = {
+        ...newItems[editIndex],
+        dispatchQuantity: Number(updateQtyPayload.dispatchQuantity),
+      };
+      return newItems;
+    });
+    setModalVisible(false);
+    dispatch(updateDispatchQtyAsync(updateQtyPayload));
+  }
+
+  useEffect(()=>{
+    console.log("parrrrr ", parsedItems)
+  },[parsedItems])
+
   return (
     <ScrollView>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View className="flex-1 items-center justify-center bg-black bg-opacity-50">
+          <View className="bg-white w-11/12 rounded-lg p-6 shadow-lg">
+            <View className="flex flex-row items-center gap-5 mb-4">
+              <Text className="text-lg font-semibold text-gray-700">
+                Previous Quantity:
+              </Text>
+              <Text className="text-lg font-semibold text-blue-600">
+                {selectedQuantity?.dispatchQuantity}
+              </Text>
+            </View>
+            <View className="flex flex-row items-center gap-4 mb-6">
+              <Text className="text-lg font-medium text-gray-700">
+                New Quantity:
+              </Text>
+              <TextInput
+                className="flex-1 border border-gray-300 rounded-lg p-2 text-gray-700"
+                keyboardType="number-pad"
+                onChangeText={(value: any) =>
+                  setUpdateQtyPayload((prev) => ({
+                    ...prev,
+                    dispatchQuantity: value,
+                  }))
+                }
+              />
+            </View>
+            <View className="flex flex-row justify-end gap-4">
+              <Pressable
+                className="bg-red-500 py-2 px-4 rounded-lg"
+                onPress={() => setModalVisible(false)}
+              >
+                <Text className="text-white text-center font-medium">
+                  Cancel
+                </Text>
+              </Pressable>
+              <Pressable
+                className="bg-green-500 py-2 px-4 rounded-lg"
+                onPress={() => handleSaveQuantity()}
+              >
+                <Text className="text-white text-center font-medium">Save</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {status == "loading" ? (
         <View className="w-screen h-screen flex flex-row justify-center items-center">
           <Text>Loading...</Text>
@@ -388,9 +484,13 @@ const addSales = () => {
                     </View>
                     <View className="flex flex-row justify-between">
                       <Text>Dispatch Quantity: </Text>
-                      <Text className="text-gray-700">
-                        {item?.dispatchQuantity}
-                      </Text>
+                      <TouchableOpacity
+                        onPress={() => handleModalChange(item, index)}
+                      >
+                        <Text className="text-gray-700">
+                          {item?.dispatchQuantity}
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                     <View className="flex flex-row justify-between">
                       <Text>Rate: </Text>
@@ -636,5 +736,45 @@ const styles = StyleSheet.create({
   itemContainerStyle: {
     color: "black",
     fontWeight: "500",
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
   },
 });

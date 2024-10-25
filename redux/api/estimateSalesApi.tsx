@@ -1,5 +1,5 @@
 import axios from "axios";
-import { basePath, billNumberApiPath, estimateSalesApiPath, generateBillApiPath, getSalesFilterApiPath, inwardSlipApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath, salesBillApiPath, voucherApiPath } from "../apiRoutes";
+import { basePath, billNumberApiPath, estimateSalesApiPath, generateBillApiPath, getSalesFilterApiPath, inwardSlipApiPath, outawrdSlipApiPath, outwardSlipFiltersApiPath, salesBillApiPath, updateDispatchQtyApiPath, voucherApiPath } from "../apiRoutes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -90,6 +90,19 @@ export const generateBillApi = async(query:any) =>{
         
         const {data} = await axios.post(generateBillApiPath, query);
         // console.log("bill data ", data)
+        return data
+    } catch (error) {
+        console.log("error on bill api ", error)
+    }
+}
+
+
+export const updateDispatchQtyApi = async(query:any) =>{
+    try {
+        
+        console.log("payloadddd ", query)
+        const {data} = await axios.patch(`${updateDispatchQtyApiPath}/${query.id}`, query);
+        console.log("update dispatch api ", data)
         return data
     } catch (error) {
         console.log("error on bill api ", error)
