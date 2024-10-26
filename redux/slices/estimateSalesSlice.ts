@@ -155,9 +155,9 @@ export const updateDispatchQtyAsync: any = createAsyncThunk(
     async (payload) => {
         try {
 
-            console.log("dis payload ", payload)
+            // console.log("dis payload ", payload)
             const response: any = await updateDispatchQtyApi(payload);
-            console.log("disp res slice", response)
+            // console.log("disp res slice", response)
             return response;
         }
         catch (err) {

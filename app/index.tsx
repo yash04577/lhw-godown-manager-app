@@ -18,7 +18,7 @@ const index = () => {
       try {
         const token:any = await AsyncStorage.getItem('authCookie');
         const {data} = await checkLogin({token: token});
-        console.log("auth res ", data);
+        // console.log("auth res ", data);
 
         if(data?.success){
           // console.log("user is valid");

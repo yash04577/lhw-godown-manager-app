@@ -57,7 +57,6 @@ import { getPurchaseByCustomerAsync } from "@/redux/slices/estimatePurchaseSlice
 
     useEffect(()=>{
       const id = parsedCustomer._id;
-      console.log("idddddddddd ", id)
       dispatch(getPurchaseByCustomerAsync({id}));
     },[])
   
@@ -358,7 +357,7 @@ import { getPurchaseByCustomerAsync } from "@/redux/slices/estimatePurchaseSlice
                   <View className="flex flex-row justify-between">
                     <Text>Received Quantity: </Text>
                     <Text className="text-gray-700">
-                      {item?.dispatchQuantity} {item?.unit}
+                      {item?.receiveQuantity} {item?.unit}
                     </Text>
                   </View>
                   <View className="flex flex-row justify-between">

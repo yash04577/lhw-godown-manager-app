@@ -32,11 +32,7 @@ const TableRow = ({ item, index }: any) => {
   const router = useRouter();
 
   const handleClick = (item: any) => {
-    // console.log("cid ", item?._id)
-    console.log("clcuked itemsssssss ", item)
-    // dispatch(getCustomersOrdersForSalesAsync({ customerId: item?._id }));
-    // router.push("/salesItems")
-
+    
     router.push({
       pathname: "/purchaseItems",
       params: { customer: JSON.stringify(item)},
@@ -100,9 +96,7 @@ const customerPurchase = () => {
     search: "",
 });
 
-useEffect(()=>{
-    console.log("testtttttttttttttttttt ", estimatePurchase)
-},[estimatePurchase])
+
 
   const dispatch = useDispatch();
 

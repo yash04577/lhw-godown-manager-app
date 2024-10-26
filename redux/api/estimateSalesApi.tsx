@@ -100,9 +100,9 @@ export const generateBillApi = async(query:any) =>{
 export const updateDispatchQtyApi = async(query:any) =>{
     try {
         
-        console.log("payloadddd ", query)
+        // console.log("payloadddd ", query)
         const {data} = await axios.patch(`${updateDispatchQtyApiPath}/${query.id}`, query);
-        console.log("update dispatch api ", data)
+        // console.log("update dispatch api ", data)
         return data
     } catch (error) {
         console.log("error on bill api ", error)

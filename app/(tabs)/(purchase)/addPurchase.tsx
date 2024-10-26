@@ -8,6 +8,8 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Modal,
+  Pressable,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,7 +23,10 @@ import {
 } from "@/redux/slices/estimateSalesSlice";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { generatePurchaseBillAsync, getNextBillNoPurchaseAsync } from "@/redux/slices/estimatePurchaseSlice";
+import {
+  generatePurchaseBillAsync,
+  getNextBillNoPurchaseAsync,
+} from "@/redux/slices/estimatePurchaseSlice";
 
 const addPurchase = () => {
   const { customer, items } = useLocalSearchParams();
@@ -50,7 +55,13 @@ const addPurchase = () => {
     console.error("Failed to parse customer: ", error);
   }
 
-  const parsedItems = items ? JSON.parse(items) : [];
+  // const parsedItems = items ? JSON.parse(items) : [];
+
+  const [parsedItems, setParsedItems] = useState([]);
+
+  useEffect(() => {
+    setParsedItems(JSON.parse(items));
+  }, [items]);
 
   const vouchers = useSelector(
     (state: any) => state?.estimateSales?.voucher?.vouchers
@@ -59,9 +70,6 @@ const addPurchase = () => {
     (voucher: any) => voucher?.typeOfVoucher == "purchase"
   );
 
-  useEffect(() => {
-    console.log("items ", parsedItems);
-  }, [vouchers]);
 
   const salesBill = useSelector(
     (state: any) => state?.estimateSales?.salesBill
@@ -146,9 +154,6 @@ const addPurchase = () => {
     (state: any) => state?.purchase?.nextBillNumber
   );
 
-  useEffect(() => {
-    console.log("next bill ", nextBillNumber);
-  }, [nextBillNumber]);
 
   const handleDataInput = (e: any) => {
     setDate(e.target.value);
@@ -223,23 +228,95 @@ const addPurchase = () => {
           receiveQuantity: item?.receiveQuantity,
           _id: item?.elementId,
         }))),
-          dispatch(generatePurchaseBillAsync(payload)).then((res:any)=>
-            router.replace("/")
-          )
-          .cath((error:any)=>
-          console.log("payload ", error)
-          )
+          dispatch(generatePurchaseBillAsync(payload))
+            .then((res: any) => router.replace("/"))
+            .cath((error: any) => console.log("payload ", error));
 
-          console.log("payload ", payload);
-          router.replace("/")
+        // console.log("payload ", payload);
+        router.replace("/");
       }
     } catch (error) {
       return error;
     }
   };
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedQuantity, setSelectedQuantity] = useState({});
+  const [editIndex, setEditIndex] = useState(-1);
+
+  const handleModalChange = async (item: any, ind: number) => {
+    setModalVisible(!modalVisible);
+    setSelectedQuantity(item);
+    setEditIndex(Number(ind));
+  };
+
+  const [updateQtyPayload, setUpdateQtyPayload] = useState({});
+
+  const handleSaveQuantity = async () => {
+    setParsedItems((prev) => {
+      const newItems: any = [...prev];
+      newItems[editIndex] = {
+        ...newItems[editIndex],
+        receiveQuantity: Number(updateQtyPayload),
+      };
+      return newItems;
+    });
+    setModalVisible(false);
+    // dispatch(updateDispatchQtyAsync(updateQtyPayload));
+  };
+
   return (
     <ScrollView>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View className="flex-1 items-center justify-center bg-black bg-opacity-50">
+          <View className="bg-white w-11/12 rounded-lg p-6 shadow-lg">
+            <View className="flex flex-row items-center gap-5 mb-4">
+              <Text className="text-lg font-semibold text-gray-700">
+                Previous Quantity:
+              </Text>
+              <Text className="text-lg font-semibold text-blue-600">
+                {selectedQuantity?.receiveQuantity}
+              </Text>
+            </View>
+            <View className="flex flex-row items-center gap-4 mb-6">
+              <Text className="text-lg font-medium text-gray-700">
+                New Quantity:
+              </Text>
+              <TextInput
+                className="flex-1 border border-gray-300 rounded-lg p-2 text-gray-700"
+                keyboardType="number-pad"
+                onChangeText={(value: any) =>
+                  setUpdateQtyPayload(value)
+                }
+              />
+            </View>
+            <View className="flex flex-row justify-end gap-4">
+              <Pressable
+                className="bg-red-500 py-2 px-4 rounded-lg"
+                onPress={() => setModalVisible(false)}
+              >
+                <Text className="text-white text-center font-medium">
+                  Cancel
+                </Text>
+              </Pressable>
+              <Pressable
+                className="bg-green-500 py-2 px-4 rounded-lg"
+                onPress={() => handleSaveQuantity()}
+              >
+                <Text className="text-white text-center font-medium">Save</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
       {status == "loading" ? (
         <View className="w-screen h-screen flex flex-row justify-center items-center">
           <Text>Loading...</Text>
@@ -396,10 +473,12 @@ const addPurchase = () => {
                       <Text className="text-gray-700">{item?.godown}</Text>
                     </View>
                     <View className="flex flex-row justify-between">
-                      <Text>Dispatch Quantity: </Text>
-                      <Text className="text-gray-700">
-                        {item?.receiveQuantity}
-                      </Text>
+                      <Text>Receive Quantity: </Text>
+                      <TouchableOpacity onPress={()=>handleModalChange(item, index)}>
+                        <Text className="text-gray-700">
+                          {item?.receiveQuantity}
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                     <View className="flex flex-row justify-between">
                       <Text>Rate: </Text>

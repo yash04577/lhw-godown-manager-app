@@ -75,7 +75,7 @@ export const getPurchaseCustomerAsync: any = createAsyncThunk(
   async (query) => {
       try {
           const response: any = await getPurchaseCustomerApi(query);
-          console.log("purchase slic customer", response);
+        //   console.log("purchase slic customer", response);
           return response;
       }
       catch (err) {
@@ -90,7 +90,7 @@ export const getPurchaseByCustomerAsync: any = createAsyncThunk(
   async (query) => {
       try {
           const response: any = await getPurchaseByCustomerApi(query);
-          console.log("purchase slic customer id", response);
+        //   console.log("purchase slic customer id", response);
           return response;
       }
       catch (err) {
@@ -107,7 +107,7 @@ export const getNextBillNoPurchaseAsync: any = createAsyncThunk(
 
             // console.log("vou ", voucher)
             const response: any = await getNextBillNoPurchaseApi(voucher);
-            console.log("bill number slice purchase", response)
+            // console.log("bill number slice purchase", response)
             return response;
         }
         catch (err) {
@@ -174,7 +174,7 @@ export const PurchaseSlice = createSlice({
             .addCase(getPurchaseCustomerAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
                 state.purchaseCustomer = action.payload.data;
-                console.log("purchase customer state ", action.payload)
+                // console.log("purchase customer state ", action.payload)
             })
             .addCase(getPurchaseByCustomerAsync.pending, (state) => {
                 state.status = 'loading'
@@ -182,7 +182,7 @@ export const PurchaseSlice = createSlice({
             .addCase(getPurchaseByCustomerAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
                 state.customerOrder = action.payload.data;
-                console.log("purchase customer state id ", action.payload)
+                // console.log("purchase customer state id ", action.payload)
             })
             .addCase(getNextBillNoPurchaseAsync.pending, (state) => {
                 state.status = 'loading'
@@ -190,14 +190,14 @@ export const PurchaseSlice = createSlice({
             .addCase(getNextBillNoPurchaseAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
                 state.nextBillNumber = action.payload;
-                console.log("purchase customer state id ", action.payload)
+                // console.log("purchase customer state id ", action.payload)
             })
             .addCase(generatePurchaseBillAsync.pending, (state) => {
                 state.status = 'loading'
             })
             .addCase(generatePurchaseBillAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
-                console.log("purchase bill generated state id ", action.payload)
+                // console.log("purchase bill generated state id ", action.payload)
             })
            
     }

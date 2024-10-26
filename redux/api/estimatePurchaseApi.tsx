@@ -39,7 +39,7 @@ export const getPurchaseCustomerApi = async({page, limit, search}:any) =>{
   try {
       
       const {data} = await axios.get(`https://www.lohawalla.com/sales/pages/customer/getAllCustomerForPurchase/v2?page=1&limit=20&search=${search}`);
-      console.log("purchase customer ", data)
+      // console.log("purchase customer ", data)
       return data
   } catch (error) {
       console.log("error on inward login api ", error)
@@ -51,7 +51,7 @@ export const getPurchaseByCustomerApi = async({id}:any) =>{
   try {
       
       const {data} = await axios.get(`${getPurchaseByCustomerApiPath}/${id}`);
-      console.log("purchase customer id ", data)
+      // console.log("purchase customer id ", data)
       return data
   } catch (error) {
       console.log("error on inward login api ", error)
@@ -63,7 +63,7 @@ export const getNextBillNoPurchaseApi = async(voucher:any) =>{
       
       // console.log("voucher ", voucher)
       const {data} = await axios.get(`${purchaseBillNumberApiPath}/${voucher}`);
-      console.log("bill number purchase api", data)
+      // console.log("bill number purchase api", data)
       return data
   } catch (error) {
       console.log("error on bill number ", error)

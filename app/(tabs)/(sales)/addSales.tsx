@@ -226,7 +226,7 @@ const addSales = () => {
             .then((res: any) => router.replace("/"))
             .cath((error: any) => console.log("payload ", error));
 
-          console.log("payload ", payload)
+          // console.log("payload ", payload)
       }
     } catch (error) {
       return error;
@@ -250,9 +250,6 @@ const addSales = () => {
 
   const [updateQtyPayload, setUpdateQtyPayload] = useState({});
 
-  useEffect(() => {
-    console.log("update qty ", updateQtyPayload);
-  }, [updateQtyPayload]);
 
   const handleSaveQuantity = async() =>{
     setParsedItems((prev) => {
@@ -266,10 +263,6 @@ const addSales = () => {
     setModalVisible(false);
     dispatch(updateDispatchQtyAsync(updateQtyPayload));
   }
-
-  useEffect(()=>{
-    console.log("parrrrr ", parsedItems)
-  },[parsedItems])
 
   return (
     <ScrollView>
