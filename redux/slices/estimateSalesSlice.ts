@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from "../api/authApi";
 import { getOutwardSlip, getOutwardSlipFilters } from "../api/outwardApi";
 import { getInwarddSlip } from "../api/inwardApi";
-import { getEstimateSales, getSalesBillApi } from "../api/estimateSalesApi";
+import { generateBillApi, getCustomersForSalesApi, getCustomersOrdersForSalesApi, getEstimateSales, getNextBillNosApi, getSalesBillApi, getSalesFilterApi, getVouchersApi, updateDispatchQtyApi } from "../api/estimateSalesApi";
 
 
 interface LoginState {
@@ -19,6 +19,11 @@ const initialState = {
     filterLoading:false,
     status: 'idle',
     salesBill: [],
+    customers: [],
+    items: [],
+    voucher: [],
+    billNumber: "",
+    updatedItem: {},
 }
 
 
@@ -45,7 +50,7 @@ export const getEstimateSalesAsync: any = createAsyncThunk(
     async (query) => {
         try {
             const response: any = await getEstimateSales(query);
-            // console.log("query slice", response)
+            // console.log("query slice", query)
             return response;
         }
         catch (err) {
@@ -64,6 +69,115 @@ export const getSalesBillAsync: any = createAsyncThunk(
         }
         catch (err) {
             console.log("error on login slice ", err)
+        }
+    }
+)
+
+export const getCustomersForSalesAsync: any = createAsyncThunk(
+    "getCustomersForSalesAsync",
+    async (query) => {
+        try {
+            const response: any = await getCustomersForSalesApi(query);
+            // console.log("query slice", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
+        }
+    }
+)
+
+export const getCustomersOrdersForSalesAsync: any = createAsyncThunk(
+    "getCustomersOrdersForSalesAsync",
+    async (query) => {
+        try {
+            const response: any = await getCustomersOrdersForSalesApi(query);
+            // console.log("query slice", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
+        }
+    }
+)
+
+
+export const getVoucherAsync: any = createAsyncThunk(
+    "getVoucherAsync",
+    async (query) => {
+        try {
+            const response: any = await getVouchersApi();
+            // console.log("voucher slice", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
+        }
+    }
+)
+
+
+export const getNextBillNoAsync: any = createAsyncThunk(
+    "getNextBillNoAsync",
+    async (voucher) => {
+        try {
+
+            // console.log("vou ", voucher)
+            const response: any = await getNextBillNosApi(voucher);
+            // console.log("bill number slice", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
+        }
+    }
+)
+
+
+export const generateBillAsync: any = createAsyncThunk(
+    "generateBillAsync",
+    async (payload) => {
+        try {
+
+            // console.log("vou ", payload)
+            const response: any = await generateBillApi(payload);
+            // console.log("bill number generate", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
+        }
+    }
+)
+
+export const updateDispatchQtyAsync: any = createAsyncThunk(
+    "updateDispatchQtyAsync",
+    async (payload) => {
+        try {
+
+            // console.log("dis payload ", payload)
+            const response: any = await updateDispatchQtyApi(payload);
+            // console.log("disp res slice", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
+        }
+    }
+)
+
+
+export const getSalesFilterAsync: any = createAsyncThunk(
+    "getSalesFilterAsync",
+    async () => {
+        try {
+
+            const response: any = await getSalesFilterApi();
+            // console.log("bill number filters slice", response)
+            return response;
+        }
+        catch (err) {
+            console.log("error on customer slice ", err)
         }
     }
 )
@@ -101,6 +215,57 @@ export const EstimateSlice = createSlice({
             .addCase(getSalesBillAsync.fulfilled, (state, action) => {
                 state.status = 'completed',
                 state.salesBill = action.payload.data;
+            })
+            .addCase(getCustomersForSalesAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getCustomersForSalesAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                state.customers = action.payload.data;
+            })
+            .addCase(getCustomersOrdersForSalesAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getCustomersOrdersForSalesAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                state.items = action.payload;
+            })
+            .addCase(getVoucherAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getVoucherAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                state.voucher = action.payload;
+            })
+            .addCase(getNextBillNoAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getNextBillNoAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                // console.log("billllllllllllllll", action.payload)
+                state.billNumber = action.payload;
+            })
+            .addCase(generateBillAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(generateBillAsync.fulfilled, (state, action) => {
+                state.status = 'completed'
+                // console.log("billllllllllllllll", action.payload)
+            })
+            .addCase(getSalesFilterAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(getSalesFilterAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                // console.log("payload   ", action.payload)
+                state.filters = action.payload;
+            })
+            .addCase(updateDispatchQtyAsync.pending, (state) => {
+                state.status = 'loading'
+            })
+            .addCase(updateDispatchQtyAsync.fulfilled, (state, action) => {
+                state.status = 'completed',
+                state.updatedItem = action.payload;
             })
            
     }

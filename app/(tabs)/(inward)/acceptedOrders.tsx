@@ -15,7 +15,7 @@ const TableRow = ({ item, index, type, assistant }: any) => {
   const handleClick = (orderNumber:any, customerId:any) =>{
 
     dispatch(acceptedOrderDetailsPurchaseAsync({orderNumber:orderNumber, customerId:customerId}))
-    router.push("/acceptedOrderPurchase")
+    router.push("/orderDetail")
   }
   // const router = useRouter();
 

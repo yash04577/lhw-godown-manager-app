@@ -14,20 +14,70 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 // import { usePDF } from '@react-pdf/renderer';
 // import { PrinterIcon } from 'react-native-heroicons/outline';
 
-const acceptedOrderPurchase = () => {
-    
-    const dispatch = useDispatch();
-    const SlipsData = useSelector((state: any) => state?.inward?.orderDetail?.data);
-  
+const acceptedOrder = () => {
+  const route = useRoute();
+  const navigation = useNavigation();
+  // const { state } = route.params;
+  // const slipsgetting = state;
+  const dispatch = useDispatch();
+  const SlipsData = useSelector((state: any) => state.outward?.orderDetail);
+
  
-    const acceptedItems = SlipsData?.items?.filter((element: any) =>
-      element.status[element.status.length - 1].value === 'accepted'
-    );
+ 
+
+  const acceptedItems = SlipsData?.item?.filter(
+    (element: any) =>
+      element.status[element.status.length - 1].value === "accepted"
+  );
+
+  const hidePrintButton = () => {
+    // toPDF();
+  };
+
+  const totalNum = SlipsData?.loadingNumber
+    ?.map((loading: any) => loading?.num)
+    ?.join(", ");
+  const vehicleNumbers = SlipsData?.loadingNumber
+    ?.map((loading: any) => loading?.vehicleNumber)
+    ?.join(", ");
+  const totalValue = SlipsData?.loadingNumber?.reduce(
+    (acc: any, loading: any) => acc + loading?.value,
+    0
+  );
+
+  const createdAt = SlipsData?.createdAt;
+  const dateObject = new Date(createdAt);
+
+  const acceptedTime =
+    acceptedItems?.length > 0
+      ? acceptedItems[0]?.status[acceptedItems[0]?.status?.length - 1]?.date
+      : null;
+  const AccepteddateObject = new Date(acceptedTime);
+
+  const options:any = { year: "numeric", month: "long", day: "numeric" };
+  const date = dateObject?.toLocaleDateString(undefined, options);
+  const AcceptedDate = AccepteddateObject?.toLocaleDateString(
+    undefined,
+    options
+  );
+
+  const timeOptions = { hour: "2-digit", minute: "2-digit", second: "2-digit" };
+  const time = dateObject?.toLocaleTimeString(undefined, timeOptions);
+  const AcceptedTime = AccepteddateObject?.toLocaleTimeString(
+    undefined,
+    timeOptions
+  );
 
   return (
     <ScrollView>
       <View className="flex px-4 flex-col">
         <View className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 flex mt-3 flex-col relative">
+          {/* <TouchableOpacity
+    onPress={hidePrintButton}
+    className="myPrintButtonClass absolute top-4 right-4 flex justify-center gap-2 px-[12px] py-[10px] text-[14px] font-medium text-white bg-[#005D7F] rounded-lg hover:bg-white hover:text-[#005D7F] border border-[#005D7F] duration-300 cursor-pointer"
+  >
+    <Text>Print</Text>
+  </TouchableOpacity> */}
 
           <View className="flex flex-row justify-between items-start">
             <View className="flex flex-col gap-4">
@@ -36,7 +86,7 @@ const acceptedOrderPurchase = () => {
                   Date:
                 </Text>
                 <Text className="text-[16px] text-gray-600 ml-2">
-                  {/* {date} at {time} */}
+                  {date} at {time}
                 </Text>
               </View>
 
@@ -50,7 +100,28 @@ const acceptedOrderPurchase = () => {
               </View>
             </View>
 
+            {/* {SlipsData?.priority && (
+              <View className="flex flex-row gap-2 items-center">
+                <Text className="font-bold text-[16px] text-gray-800">
+                  Priority:
+                </Text>
+                <Text
+                  className={`capitalize font-bold text-[16px] ${
+                    SlipsData?.priority === "high"
+                      ? "text-red-500"
+                      : SlipsData?.priority === "normal"
+                      ? "text-green-500"
+                      : SlipsData?.priority === "low"
+                      ? "text-yellow-500"
+                      : ""
+                  }`}
+                >
+                  {SlipsData?.priority}
+                </Text>
+              </View>
+            )} */}
           </View>
+          {/* <View className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 flex flex-col relative"> */}
           <View className="flex flex-row justify-between items-start flex-wrap mt-5">
             <View className="flex flex-col gap-4">
               {SlipsData?.voucher && (
@@ -285,7 +356,7 @@ const acceptedOrderPurchase = () => {
               <View className="p-4 flex flex-col gap-2">
                 <Text className="text-[16px] text-gray-600">
                   <Text className="font-bold">Accepted At :</Text>
-                  {/* {AcceptedDate} {AcceptedTime} */}
+                  {AcceptedDate} {AcceptedTime}
                 </Text>
                 <View className="flex flex-row justify-between">
                   <Text className="text-[16px] text-gray-600">
@@ -398,4 +469,4 @@ const acceptedOrderPurchase = () => {
   );
 };
 
-export default acceptedOrderPurchase;
+export default acceptedOrder;

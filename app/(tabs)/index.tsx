@@ -309,7 +309,7 @@ export default function HomeScreen() {
           <View>
             <TouchableOpacity
               className="bg-green-400 rounded-md p-3"
-              onPress={() => router.push("../acceptedItems")}
+              onPress={() => router.push("/acceptedSalesOrders")}
             >
               <Text className="text-black font-medium">Accepted Items</Text>
             </TouchableOpacity>

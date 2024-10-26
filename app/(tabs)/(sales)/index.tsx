@@ -2,9 +2,12 @@ import Pagination from "@/components/commanComponents/Pagination";
 import EstimateSalesTable from "@/components/estimateSales/EstimateSalesTable";
 import OutwardSlipCard from "@/components/outwardSlip/OutwardSlipCard";
 import OutwardSlipTable from "@/components/outwardSlip/OutwardSlipTable";
-import { getEstimatePurchaseAsync } from "@/redux/slices/estimatePurchaseSlice";
+import { getEstimateSalesAsync, getSalesBillAsync, getSalesFilterAsync, getVoucherAsync } from "@/redux/slices/estimateSalesSlice";
 import { MaterialIcons } from "@expo/vector-icons";
+import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import {
   StyleSheet,
   Text,
@@ -13,12 +16,54 @@ import {
   View,
   ScrollView,
   TextInput,
+  FlatList,
 } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { Dropdown } from "react-native-element-dropdown";
 import { useDispatch, useSelector } from "react-redux";
 
-const estimatePurchase = ()=> {
+const TableRow = ({ item, index }:any) => {
+
+    const dispatch = useDispatch();
+  
+        const router = useRouter();
+  
+        const handleClick = (item:any) =>{
+         
+            dispatch(getSalesBillAsync({id: item.salesId}))
+            router.push("/salesBill")
+        
+        }
+  
+    return (
+      
+  <TouchableOpacity onPress={()=>handleClick(item)}>
+  
+  <View className={`bg-white rounded-lg shadow-md p-4 mb-4 w-[90%] mx-auto`}>
+        <View className="flex-row justify-between items-center border-b border-gray-200 pb-2">
+          <Text className="text-gray-700 font-medium">{index+1}</Text>
+          <Text className="text-gray-700">{item?.godown}</Text>
+          <Text className="text-gray-700 font-medium">{item?.billNumber}</Text>
+        </View>
+        <View className="mt-2 ">
+          <Text className="text-gray-700">{item?.customerName}</Text>
+          <Text className="text-gray-700">{ item?.salesOrderNumber}</Text>
+        </View>
+        <View className="flex-row justify-between items-center mt-2 flex-1 flex-wrap">
+          <Text className="text-gray-700">{item?.createdDate?.slice(0,10)}</Text>
+          {/* <Text className="text-gray-700">{item.status}</Text> */}
+          <Text className="text-gray-700">&#8377; {item?.total?.toFixed(0)}</Text>
+        </View>
+      </View>
+  </TouchableOpacity>
+      
+    );
+  };
+
+const estimateSales = ()=> {
+
+  const [refreshing, setRefreshing] = useState(false);
+
   const [godownData, setGodownData] = useState([
     {
       _id: "65dc15c87d442240671928e6",
@@ -42,12 +87,18 @@ const estimatePurchase = ()=> {
     },
   ]);
 
+  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [selectedGodown, setSelectedGodown] = useState("");
   const [godownFilterFocus, setGodownFilterFocus] = useState(false);
   const [dateModalOpen, setDateModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<String>("");
-  const purchaseBills = useSelector((state:any)=>state?.purchase?.data)
+  const estimateSales = useSelector((state:any)=>state?.estimateSales?.data);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const filters = useSelector((state:any)=>state?.estimateSales?.filters)
+  const vourcher = useSelector((state:any)=>state?.estimateSales?.voucher);
+  let selectedVoucher:[] = []
 
   const dispatch = useDispatch();
 
@@ -55,23 +106,45 @@ const estimatePurchase = ()=> {
     return date.toISOString().substring(0, 10);
   };
 
-  const handleDateChange = (date: any) => {
-    try {
-      if (date != null) {
-        // console.log("if called here")
-        setSelectedDate(formatDate(date));
-      } else {
-        setSelectedDate("");
-      }
-    } catch (error) {
-      console.log("error on date change on past history", error);
+  const handleDateChange = (event:any, selectedDate:any) => {
+
+
+    if (selectedDate) {
+        // Adjust for local time
+        const offsetDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
+        setDate(offsetDate)
     }
-  };
+
+    setDateModalOpen(false)
+    let formattedDate = formatDate(date);
+    // setQuery((query:any)=>({
+    //   ...query,
+    //   date: formattedDate
+    // }))
+
+    dispatch(dispatch(getEstimateSalesAsync({page:1, limit:10, date: formattedDate})));
+
+};
+
 
   useEffect(()=>{
-    dispatch(getEstimatePurchaseAsync({page:1, limit:10, customer:"", godownId:""}));
+    dispatch(getSalesFilterAsync());
+    dispatch(getEstimateSalesAsync({page:1, limit:10}));
+    dispatch(getVoucherAsync());
   },[])
 
+  const handleRefresh = () =>{
+    // console.log("refresh called")
+    setSelectedCustomer(null);
+    dispatch(getEstimateSalesAsync({page:1, limit:10}));
+  }
+
+  const [date, setDate] = useState(new Date(Date.now()));
+
+  // useEffect(()=>{
+  //   console.log("a lo g ", vourcher)
+  // },[vourcher])
+ 
 
   return (
     <View className="flex-1 h-screen mt-2">
@@ -90,25 +163,31 @@ const estimatePurchase = ()=> {
               selectedTextStyle={styles.selectedTextStyle}
               itemTextStyle={styles.itemContainerStyle}
               containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
-              data={godownData}
+              data={vourcher?.vouchers?.length > 0 ? vourcher?.vouchers?.filter((voucher:any)=>voucher.typeOfVoucher == "sales") : []}
               disable={loading}
               maxHeight={220}
-              labelField="godownName"
+              labelField="voucherName"
               valueField="_id" // need to ask ?
-              placeholder={"Godown"}
-              value={selectedGodown}
+              placeholder={"Voucher"}
+              value={selectedVoucher[0]}
               // onFocus={() => setIsFocus2(true)}
               // onBlur={() => setIsFocus2(false)}
-              onChange={(godown: any) => {
-                setGodownFilterFocus(!godownFilterFocus);
-                setSelectedGodown(godown);
+              onChange={(voucher: any) => {
+                selectedVoucher.push(voucher)
+                dispatch(
+                  getEstimateSalesAsync({
+                    limit: 10,
+                    page: 1,
+                    voucher: selectedVoucher,
+                  })
+                );
               }}
               renderLeftIcon={() => {
                 return (
                   <>
-                    {selectedGodown != "" && (
+                    {selectedVoucher.length > 0 && (
                       <TouchableNativeFeedback
-                        onPress={() => setSelectedGodown("")}
+                        onPress={() => selectedVoucher.splice(0, selectedVoucher.length)}
                       >
                         <MaterialIcons
                           name="cancel"
@@ -141,6 +220,13 @@ const estimatePurchase = ()=> {
               onChange={(godown: any) => {
                 setGodownFilterFocus(!godownFilterFocus);
                 setSelectedGodown(godown);
+                dispatch(
+                  getEstimateSalesAsync({
+                    limit: 10,
+                    page: 1,
+                    godownId: godown._id,
+                  })
+                );
               }}
               renderLeftIcon={() => {
                 return (
@@ -164,46 +250,36 @@ const estimatePurchase = ()=> {
           <View className="">
             <TouchableOpacity onPress={() => setDateModalOpen(true)}>
               <View
-                className={`flex-row py-2 rounded-md border items-center justify-between px-2 ${
-                  selectedDate === "" ? "bg-white" : "bg-primary"
-                }`}
+                className={`flex-row py-2 rounded-md border items-center justify-between px-2`}
                 style={{ borderWidth: 1 }}
               >
-                {selectedDate !== "" && (
-                  <TouchableNativeFeedback onPress={() => handleDateChange("")}>
+                {date !== "" && (
+                  <TouchableNativeFeedback onPress={() => setDate(new Date(Date.now()))}>
                     <MaterialIcons name="cancel" size={20} color={"white"} />
                   </TouchableNativeFeedback>
                 )}
                 <Text
-                  className={`${
-                    selectedDate === "" ? " text-[#004EBA]" : " text-white"
-                  } font-semibold`}
                 >
-                  {selectedDate ? (selectedDate as String) : "Date"}
+                  {date ? (formatDate(date) as string) : "Date"}
                 </Text>
                 <MaterialIcons
                   name="date-range"
                   size={20}
-                  color={selectedDate ? "white" : "black"}
+                  color={"black"}
                 />
               </View>
             </TouchableOpacity>
-            <DatePicker
-              modal
-              open={dateModalOpen}
-              mode="date"
-              date={new Date()}
-              onConfirm={(date: any) => {
-                handleDateChange(date);
-                setDateModalOpen(false);
-              }}
-              onCancel={() => {
-                setDateModalOpen(false);
-              }}
-            />
+            {dateModalOpen && (
+          <DateTimePicker
+          testID="dateTimePicker"
+          value={date}
+          is24Hour={false}
+          onChange={handleDateChange}
+      />
+      )}
           </View>
 
-          <View className="border rounded-md flex justify-center items-center px-2 bg-white">
+          {/* <View className="border rounded-md flex justify-center items-center px-2 bg-white">
             <Dropdown
               style={[]}
               placeholderStyle={styles.placeholderStyle}
@@ -213,6 +289,7 @@ const estimatePurchase = ()=> {
               data={godownData}
               disable={loading}
               maxHeight={220}
+              search
               labelField="godownName"
               valueField="_id" // need to ask ?
               placeholder={"Status"}
@@ -241,57 +318,40 @@ const estimatePurchase = ()=> {
                 );
               }}
             />
-          </View>
+          </View> */}
         </ScrollView>
         <View className="w-[90%] flex flex-row">
-        <TextInput 
-          placeholder="Search Customer..." 
-          className="border w-[65%] mx-auto px-2 py-1 rounded-md bg-white"
-        />
-        <TouchableOpacity className="bg-[#283093] flex justify-center items-center rounded-md"><Text className="text-white px-4 font-medium">Add Purchase</Text></TouchableOpacity>
-      </View>
-      </View>
-
-
-      {/* cards are here */}
-      {/* <ScrollView> */}
-      <View className="my-4 h-[75%]">
-        <EstimateSalesTable data={purchaseBills} type={"purchase"}/>
-      </View>
-
-      {/* pagination starts here */}
-      <View className="w-[90%] mx-auto flex flex-row justify-between">
-        <View className="w-[150px]">
-          <Pagination />
-        </View>
-        
-        <View className="w-[150px]">
-        <Dropdown
-              className="flex-row justify-center items-center bg-white rounded-full px-4 py-2 border text-lg text-blue-700 font-semibold mx-2"
-              style={[]}
+        <View className="border flex justify-center items-center w-[68%] h-[50px] rounded-md px-2 bg-white">
+            <Dropdown
+              style={{width:"100%"}}
               placeholderStyle={styles.placeholderStyle}
               selectedTextStyle={styles.selectedTextStyle}
               itemTextStyle={styles.itemContainerStyle}
-              containerStyle={{ width: 100, borderRadius: 5, marginTop: 5 }}
-              data={godownData}
-              disable={loading}
+              containerStyle={{ width: 300, borderRadius: 5, marginTop: 5 }}
+              data={ filters?.Customer?.length > 0 ? filters?.Customer : []}
+              disable={false}
               maxHeight={220}
-              labelField="godownName"
+              search
+              labelField="customerName"
               valueField="_id" // need to ask ?
-              placeholder={"Limit 10"}
-              value={selectedGodown}
-              // onFocus={() => setIsFocus2(true)}
-              // onBlur={() => setIsFocus2(false)}
-              onChange={(godown: any) => {
-                setGodownFilterFocus(!godownFilterFocus);
-                setSelectedGodown(godown);
+              placeholder={"Search Customers..."}
+              value={selectedCustomer}
+              onChange={(customer: any) => {
+                setSelectedCustomer(customer);
+                dispatch(
+                  getEstimateSalesAsync({
+                    limit: 10,
+                    page: 1,
+                    customerId: customer._id,
+                  })
+                );
               }}
               renderLeftIcon={() => {
                 return (
                   <>
-                    {selectedGodown != "" && (
+                    {selectedCustomer != null && (
                       <TouchableNativeFeedback
-                        onPress={() => setSelectedGodown("")}
+                        onPress={() => setSelectedCustomer(null)}
                       >
                         <MaterialIcons
                           name="cancel"
@@ -304,8 +364,23 @@ const estimatePurchase = ()=> {
                 );
               }}
             />
-        </View>
+          </View>
+        <TouchableOpacity onPress={()=> router.push("/customerSales")} className="bg-[#283093] flex justify-center items-center rounded-md ml-2"><Text className="text-white px-4 font-medium">Add Sales</Text></TouchableOpacity>
       </View>
+      </View>
+
+
+      {/* cards are here */}
+      {/* <ScrollView> */}
+      <View className="my-4 h-[85%]">
+      <FlatList
+      data={estimateSales}
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
+      renderItem={({ item, index }) => <TableRow item={item} index={index} />}
+      />
+      </View>
+
       {/* </ScrollView> */}
     </View>
   );
@@ -403,4 +478,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default estimatePurchase;
+export default estimateSales;
