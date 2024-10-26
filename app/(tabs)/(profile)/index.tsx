@@ -18,7 +18,7 @@ const index = ({navigator:any}) => {
 
     const handleLogout = async() =>{
         await AsyncStorage.clear();
-        router.push("login")
+        router.replace("login")
         // router.push("../(tabs)/(inward)/")
         // router.push("../")
 
