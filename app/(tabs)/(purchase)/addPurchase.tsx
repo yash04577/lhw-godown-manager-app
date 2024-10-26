@@ -32,6 +32,12 @@ const addPurchase = () => {
   const { customer, items } = useLocalSearchParams();
   const customerString = Array.isArray(customer) ? customer[0] : customer;
   const router = useRouter();
+  const [selectedVoucher, setSelectedVoucher] = useState();
+  const [showDateInput, setShowDateInput] = useState(false);
+  const [date, setDate] = useState(new Date(Date.now()));
+  const [AddGst, setAddGst] = useState(18);
+  const [finalAdditionalPriceWithGst, setFinalAdditionalPriceWithGst] = useState(0);
+
 
   const [user, setUser] = useState();
 
@@ -70,7 +76,6 @@ const addPurchase = () => {
     (voucher: any) => voucher?.typeOfVoucher == "purchase"
   );
 
-
   const salesBill = useSelector(
     (state: any) => state?.estimateSales?.salesBill
   );
@@ -90,6 +95,52 @@ const addPurchase = () => {
     }
   };
 
+  const [additionalPrice, setAdditionalPrice] = useState({
+    loading: 0,
+    insaurance: 0,
+    freight: 0,
+    cashDiscount: 0,
+    frightNonGst: 0,
+  });
+
+
+  useEffect(() => {
+    // Calculate the base additional price without GST
+    const finalAdditionalPriceWithoutGst = parseFloat(
+      (
+        Number(additionalPrice.insaurance || 0) +
+        Number(additionalPrice.freight || 0) +
+        Number(additionalPrice.loading || 0)
+      ).toFixed(2)
+    );
+
+    // Calculate GST for the base additional price
+    const gstOnAdditionalPrice = parseFloat(
+      ((finalAdditionalPriceWithoutGst * AddGst) / 100).toFixed(2)
+    );
+
+    // Calculate cash discount with GST applied
+    const cashDiscount = Number(additionalPrice.cashDiscount || 0);
+    const cashDiscountWithGst = parseFloat(
+      (cashDiscount + (cashDiscount * AddGst) / 100).toFixed(2)
+    );
+
+    // Calculate the final additional price including all parts
+    const finalPriceWithGst =
+      finalAdditionalPriceWithoutGst +
+      gstOnAdditionalPrice +
+      Number(additionalPrice.frightNonGst || 0) -
+      cashDiscountWithGst;
+
+    // Update state
+    setFinalAdditionalPriceWithGst(finalPriceWithGst);
+
+    console.log("additional price ", additionalPrice);
+    console.log("additional price without gst", finalAdditionalPriceWithoutGst);
+    console.log("additional price with gst", finalPriceWithGst);
+  }, [additionalPrice, AddGst]);
+
+
   // Update totalNetRate whenever parsedItems or additionalPrice change
   useEffect(() => {
     let tempTotal = 0;
@@ -104,17 +155,10 @@ const addPurchase = () => {
     });
 
     // console.log("temp total ", tempTotal);
-    // console.log("final add ", finalAdditionalPriceWithGst);
+    console.log("final add ", finalAdditionalPriceWithGst);
+    console.log("final sum ", finalAdditionalPriceWithGst+tempTotal);
     setTotalNetRate(tempTotal + finalAdditionalPriceWithGst); // Add additionalPrice to totalNetRate
-  }, [parsedItems, additionalPrice]);
-
-  const [additionalPrice, setAdditionalPrice] = useState({
-    loading: 0,
-    insaurance: 0,
-    freight: 0,
-    cashDiscount: 0,
-    frightNonGst: 0,
-  });
+  }, [parsedItems, additionalPrice, finalAdditionalPriceWithGst]);
 
   const targetVouchers = [
     "664702668cda5ec69b639387",
@@ -122,11 +166,7 @@ const addPurchase = () => {
     "664701838cda5ec69b5ca68d",
   ];
 
-  const [selectedVoucher, setSelectedVoucher] = useState();
-  const [showDateInput, setShowDateInput] = useState(false);
-  const [date, setDate] = useState(new Date(Date.now()));
-  const [AddGst, setAddGst] = useState(18);
-
+  
   const formatDate = (date: Date): string => {
     return date.toISOString().substring(0, 10);
   };
@@ -154,7 +194,6 @@ const addPurchase = () => {
     (state: any) => state?.purchase?.nextBillNumber
   );
 
-
   const handleDataInput = (e: any) => {
     setDate(e.target.value);
   };
@@ -177,23 +216,9 @@ const addPurchase = () => {
     voucher: "",
   };
 
-  const [finalAdditionalPriceWithGst, setFinalAdditionalPriceWithGst] =
-    useState(0);
+  
 
-  useEffect(() => {
-    let finalAdditionalPriceWithoutGst =
-      Number(additionalPrice.insaurance || 0) +
-      Number(additionalPrice.freight || 0) +
-      Number(additionalPrice.loading || 0);
-    setFinalAdditionalPriceWithGst(
-      finalAdditionalPriceWithoutGst +
-        (finalAdditionalPriceWithoutGst * AddGst) / 100 +
-        Number(additionalPrice.frightNonGst || 0) -
-        Number(additionalPrice.cashDiscount || 0) -
-        Number((Number(additionalPrice.cashDiscount || 0) * AddGst) / 100)
-    );
-  }, [additionalPrice, AddGst]);
-
+  
   const generateBill = async () => {
     try {
       if (!selectedVoucher) {
@@ -228,12 +253,12 @@ const addPurchase = () => {
           receiveQuantity: item?.receiveQuantity,
           _id: item?.elementId,
         }))),
-          dispatch(generatePurchaseBillAsync(payload))
-            .then((res: any) => router.replace("/"))
-            .cath((error: any) => console.log("payload ", error));
+          // dispatch(generatePurchaseBillAsync(payload))
+          //   .then((res: any) => router.replace("/"))
+          //   .cath((error: any) => console.log("payload ", error));
 
-        // console.log("payload ", payload);
-        router.replace("/");
+        console.log("payload ", payload);
+        // router.replace("/");
       }
     } catch (error) {
       return error;
@@ -293,9 +318,7 @@ const addPurchase = () => {
               <TextInput
                 className="flex-1 border border-gray-300 rounded-lg p-2 text-gray-700"
                 keyboardType="number-pad"
-                onChangeText={(value: any) =>
-                  setUpdateQtyPayload(value)
-                }
+                onChangeText={(value: any) => setUpdateQtyPayload(value)}
               />
             </View>
             <View className="flex flex-row justify-end gap-4">
@@ -474,7 +497,9 @@ const addPurchase = () => {
                     </View>
                     <View className="flex flex-row justify-between">
                       <Text>Receive Quantity: </Text>
-                      <TouchableOpacity onPress={()=>handleModalChange(item, index)}>
+                      <TouchableOpacity
+                        onPress={() => handleModalChange(item, index)}
+                      >
                         <Text className="text-gray-700">
                           {item?.receiveQuantity}
                         </Text>
@@ -517,7 +542,7 @@ const addPurchase = () => {
           <View className="w-full my-5 bg-white p-5 rounded-lg">
             <View className="flex-row justify-between items-center border-b border-gray-200 pb-2 mb-2">
               <Text className="font-bold text-black text-xl">
-                Additional Pricing
+                Additional Pricing {(finalAdditionalPriceWithGst)}
               </Text>
             </View>
 

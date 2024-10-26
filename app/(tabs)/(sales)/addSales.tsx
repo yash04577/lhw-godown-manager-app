@@ -30,6 +30,10 @@ const addSales = () => {
   const { customer, items } = useLocalSearchParams();
   const customerString = Array.isArray(customer) ? customer[0] : customer;
   const router = useRouter();
+  const [selectedVoucher, setSelectedVoucher] = useState();
+  const [showDateInput, setShowDateInput] = useState(false);
+  const [date, setDate] = useState(new Date(Date.now()));
+  const [AddGst, setAddGst] = useState(18);
 
   const [user, setUser] = useState();
 
@@ -72,8 +76,32 @@ const addSales = () => {
 
   const status = useSelector((state: any) => state?.estimateSales?.status);
 
+  const [additionalPrice, setAdditionalPrice] = useState({
+    loading: 0,
+    unloading: 0,
+    freight: 0,
+    cutting: 0,
+    tcs: 0,
+  });
+
   // Convert totalNetRate to a state variable
   const [totalNetRate, setTotalNetRate] = useState(0);
+
+  const [finalAdditionalPriceWithGst, setFinalAdditionalPriceWithGst] =
+    useState(0);
+
+    useEffect(() => {
+      let finalAdditionalPriceWithoutGst =
+        Number(additionalPrice.cutting || 0) +
+        Number(additionalPrice.freight || 0) +
+        Number(additionalPrice.loading || 0) +
+        Number(additionalPrice.unloading || 0);
+      setFinalAdditionalPriceWithGst(
+        finalAdditionalPriceWithoutGst +
+          (finalAdditionalPriceWithoutGst * AddGst) / 100 +
+          Number(additionalPrice.tcs || 0)
+      );
+    }, [additionalPrice, AddGst]);
 
   const getNetRate = (rate: any, dispatchQuantity: any, gst: any) => {
     try {
@@ -84,6 +112,8 @@ const addSales = () => {
       return -1;
     }
   };
+
+ 
 
   // Update totalNetRate whenever parsedItems or additionalPrice change
   useEffect(() => {
@@ -98,23 +128,11 @@ const addSales = () => {
       );
     });
 
-    const additionalTotal =
-      Number(additionalPrice.loading || 0) +
-      Number(additionalPrice.unloading || 0) +
-      Number(additionalPrice.freight || 0) +
-      Number(additionalPrice.cutting || 0) +
-      Number(additionalPrice.tcs || 0);
 
     setTotalNetRate(tempTotal + finalAdditionalPriceWithGst); // Add additionalPrice to totalNetRate
-  }, [parsedItems, additionalPrice]);
+  }, [parsedItems, additionalPrice, finalAdditionalPriceWithGst]);
 
-  const [additionalPrice, setAdditionalPrice] = useState({
-    loading: 0,
-    unloading: 0,
-    freight: 0,
-    cutting: 0,
-    tcs: 0,
-  });
+  
 
   const targetVouchers = [
     "664702668cda5ec69b639387",
@@ -122,10 +140,7 @@ const addSales = () => {
     "664701838cda5ec69b5ca68d",
   ];
 
-  const [selectedVoucher, setSelectedVoucher] = useState();
-  const [showDateInput, setShowDateInput] = useState(false);
-  const [date, setDate] = useState(new Date(Date.now()));
-  const [AddGst, setAddGst] = useState(18);
+  
 
   const formatDate = (date: Date): string => {
     return date.toISOString().substring(0, 10);
@@ -178,21 +193,7 @@ const addSales = () => {
     voucher: "66486b47b85dff24fa07af40",
   };
 
-  const [finalAdditionalPriceWithGst, setFinalAdditionalPriceWithGst] =
-    useState(0);
-
-  useEffect(() => {
-    let finalAdditionalPriceWithoutGst =
-      Number(additionalPrice.cutting || 0) +
-      Number(additionalPrice.freight || 0) +
-      Number(additionalPrice.loading || 0) +
-      Number(additionalPrice.unloading || 0);
-    setFinalAdditionalPriceWithGst(
-      finalAdditionalPriceWithoutGst +
-        (finalAdditionalPriceWithoutGst * AddGst) / 100 +
-        Number(additionalPrice.tcs || 0)
-    );
-  }, [additionalPrice, AddGst]);
+  
 
   const generateBill = async () => {
     try {
@@ -522,7 +523,7 @@ const addSales = () => {
           <View className="w-full my-5 bg-white p-5 rounded-lg">
             <View className="flex-row justify-between items-center border-b border-gray-200 pb-2 mb-2">
               <Text className="font-bold text-black text-xl">
-                Additional Pricing
+                Additional Pricing {(finalAdditionalPriceWithGst)}
               </Text>
             </View>
 

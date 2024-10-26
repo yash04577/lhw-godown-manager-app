@@ -196,7 +196,7 @@ export const PurchaseSlice = createSlice({
                 state.status = 'loading'
             })
             .addCase(generatePurchaseBillAsync.fulfilled, (state, action) => {
-                state.status = 'completed',
+                state.status = 'completed'
                 // console.log("purchase bill generated state id ", action.payload)
             })
            
